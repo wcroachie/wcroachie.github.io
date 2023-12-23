@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf-8>
+  </head>
+  <body>
+    <script>
+      /*
+       * the page this iframe is on has it's
+       * thread blocked by whatever async code
+       * runs below.
+       */
+      let paramsObject = Object.fromEntries(new URLSearchParams(location.search));
+      let codeToRun = atob(decodeURIComponent(paramsObject.javascript));
+      eval(codeToRun);
+    </script>
+  </body>
+</html>
