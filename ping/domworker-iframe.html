@@ -12,31 +12,7 @@
     <script>
     
       let errorFlag = name.split(/;/)[0];
-    
-      /* https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream/CompressionStream */
-      /* can use gzip, deflate, or deflate-raw */
-      function compressBlob( blob, method, callback ){
-        new Response(blob.stream().pipeThrough(new CompressionStream(method))).blob().then(callback).catch(console.error);
-      }
-      
-      function decompressBlob( blob, method, callback ){
-        new Response(blob.stream().pipeThrough(new DecompressionStream(method))).blob().then(callback).catch(console.error);
-      }
-      
-      function compressString( str, method, callback ){
-        let blob = new Blob([str]);
-        compressBlob(blob,method,blob=>{
-          blob.text().then(callback).catch(console.error);
-        });
-      }
-      
-      function decompressString( str, method, callback ){
-        let blob = new Blob([str]);
-        decompressBlob(blob,method,blob=>{
-          blob.text().then(callback).catch(console.error);
-        });
-      }
-    
+
       function postMessage( message, transfer ){
         parent.postMessage( message, "*", transfer );
       }
