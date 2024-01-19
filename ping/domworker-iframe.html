@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=utf-8>
+  </head>
+  <body>
+    <script>
+    
+      parent.postMessage( "iframe-initialized", "*" );
+    
+    </script>
+    <script>
+    
+      let errorFlag = name.split(/;/)[0];
+    
+      /* https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream/CompressionStream */
+      /* can use gzip, deflate, or deflate-raw */
+      function compressBlob( blob, method, callback ){
+        new Response(blob.stream().pipeThrough(new CompressionStream(method))).blob().then(callback).catch(console.error);
+      }
+      
+      function decompressBlob( blob, method, callback ){
+        new Response(blob.stream().pipeThrough(new DecompressionStream(method))).blob().then(callback).catch(console.error);
+      }
+      
+      function compressString( str, method, callback ){
+        let blob = new Blob([str]);
+        compressBlob(blob,method,blob=>{
+          blob.text().then(callback).catch(console.error);
+        });
+      }
+      
+      function decompressString( str, method, callback ){
+        let blob = new Blob([str]);
+        decompressBlob(blob,method,blob=>{
+          blob.text().then(callback).catch(console.error);
+        });
+      }
+    
+      function postMessage( message, transfer ){
+        parent.postMessage( message, "*", transfer );
+      }
+    
+      function sanitizeError( e ){
+        if( typeof e === "string" ){
+          return e;
+        }
+        function getAllPropertyNames(o){
+          let s = new Set();
+          while( o !== null && o !== Object.prototype ){
+            Object.getOwnPropertyNames(o).forEach( e => s.add(e) );
+            o = Object.getPrototypeOf(o);
+          }
+          return [...s];
+        }
+        let clone = Object.fromEntries( getAllPropertyNames( e ).map( prop => [ prop, e[prop] ] ) );
+        for( let key in clone ){
+          if( typeof clone[key] === "function" ){
+            delete clone[key]
+            continue;
+          }
+          if( typeof clone[key] === "object" && clone[key] !== null ){
+            clone[key] = Object.prototype.toString.call( clone[key] );
+            continue;
+          }
+        }
+        return clone;
+      }
+      
+      function sanitizeErrorEvent( e ){
+        let ev = sanitizeError( e );
+        ev.error = sanitizeError( e.error );
+        return ev;
+      }
+      
+      function sanitizeUnhandledRejectionEvent( e ){
+        let ev = sanitizeError( e );
+        ev.reason = sanitizeError( e.reason );
+        return ev;
+      }
+      
+      addEventListener( "error", e => postMessage( [errorFlag,sanitizeErrorEvent(e)] ) );
+      
+      addEventListener( "unhandledrejection", e => postMessage( [errorFlag,sanitizeUnhandledRejectionEvent(e)] ) );
+      
+      try{
+        eval( name.slice(errorFlag.length+1) );
+      }catch(e){
+        postMessage( [ errorFlag, sanitizeError(e) ] );
+      }
+      
+    </script>
+  </body>
+</html>
