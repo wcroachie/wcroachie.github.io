@@ -11,59 +11,60 @@
     </script>
     <script>
     
-      let errorFlag = name.split(/;/)[0];
-
       function postMessage( message, transfer ){
         parent.postMessage( message, "*", transfer );
       }
-    
-      function sanitizeError( e ){
-        if( typeof e === "string" ){
-          return e;
-        }
+      
+      !function(){
+        
         function getAllPropertyNames(o){
           let s = new Set();
-          while( o !== null && o !== Object.prototype ){
+          while( o !== undefined && o !== null && o !== Object.prototype ){
             Object.getOwnPropertyNames(o).forEach( e => s.add(e) );
             o = Object.getPrototypeOf(o);
           }
           return [...s];
         }
-        let clone = Object.fromEntries( getAllPropertyNames( e ).map( prop => [ prop, e[prop] ] ) );
-        for( let key in clone ){
-          if( typeof clone[key] === "function" ){
-            delete clone[key]
-            continue;
+        
+        let errorFlag = name.split(/;/)[0];
+      
+        function sanitizeError( e ){
+          
+          if( typeof e === "string" ){
+            return e;
           }
-          if( typeof clone[key] === "object" && clone[key] !== null ){
-            clone[key] = Object.prototype.toString.call( clone[key] );
-            continue;
+          
+          let clone = Object.fromEntries( getAllPropertyNames( e ).map( prop => [ prop, e[prop] ] ) );
+          
+          for( let key in clone ){
+            if( typeof clone[key] === "function" ){
+              delete clone[key];
+              continue;
+            }
+            if( typeof clone[key] === "object" && clone[key] !== null ){
+              clone[key] = Object.prototype.toString.call( clone[key] );
+              continue;
+            }
           }
+          
+          return clone;
+          
         }
-        return clone;
-      }
-      
-      function sanitizeErrorEvent( e ){
-        let ev = sanitizeError( e );
-        ev.error = sanitizeError( e.error );
-        return ev;
-      }
-      
-      function sanitizeUnhandledRejectionEvent( e ){
-        let ev = sanitizeError( e );
-        ev.reason = sanitizeError( e.reason );
-        return ev;
-      }
-      
-      addEventListener( "error", e => postMessage( [errorFlag,sanitizeErrorEvent(e)] ) );
-      
-      addEventListener( "unhandledrejection", e => postMessage( [errorFlag,sanitizeUnhandledRejectionEvent(e)] ) );
-      
-      try{
-        eval( name.slice(errorFlag.length+1) );
-      }catch(e){
-        postMessage( [ errorFlag, sanitizeError(e) ] );
-      }
+        
+        function sanitizeErrorEvent( e ){
+          let ev = sanitizeError( e );
+          ev.error = sanitizeError( e.error );
+          return ev;
+        }
+        
+        addEventListener( "error", e => {
+          postMessage( [errorFlag,sanitizeErrorEvent(e)] );
+        });
+        
+        let workerCode = name.slice(errorFlag.length+1);
+        eval( workerCode );
+        
+      }();
       
     </script>
   </body>
