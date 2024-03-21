@@ -123,8 +123,6 @@ self.onfetch = event => {
     fileName = encodeURIComponent(fileName).replace(/['()]/g, escape).replace(/\*/g, '%2A')
     responseHeaders.set('Content-Disposition', "attachment; filename*=UTF-8''" + fileName)
   }
-
-  while( !navigator.onLine ){}
   
   event.respondWith(new Response(stream, { headers: responseHeaders }))
 
