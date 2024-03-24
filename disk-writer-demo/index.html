@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <h1>diskwriter demo</h1>
+    <button>click to begin saving 1,000 A's per second</button>
+    <button>click to stop saving the A's</button>
+    <script src="disk-writer.js"></script>
+    <script>
+      let btns = document.querySelectorAll("button");
+      let btn0 = btns[0];
+      let btn1 = btns[1];
+      let dw;
+      let iv;
+      btn0.onclick = () => {
+        dw = new DiskWriter( "https://wcroachie.github.io/disk-writer", "wow.txt", new Date(0) );
+        iv = setInterval(()=>{
+          let bytes = new Uint8Array( "A".repeat( 1000 ).split("").map( e => e.codePointAt() ) );
+          dw.feed( bytes );
+        },1000);
+      };
+      btn1.onclick = () => {
+        if( dw ){
+          console.log("closing the stream...");
+          dw.close().then( () => {
+            console.log("done");
+          });
+        }
+        clearInterval( iv );
+      };
+    </script>
+  </body>
+</html>
