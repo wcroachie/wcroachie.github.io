@@ -72,9 +72,19 @@
       elem.setAttribute("data-dragging","");
       offsetX = e.clientX - _this.getClientRect(elem).x;
       offsetY = e.clientY - _this.getClientRect(elem).y;
+
+      elem.removeEventListener("pointerdown",pointerDownHandler);
       elem.removeEventListener("mousedown",pointerDownHandler);
+      elem.removeEventListener("touchstart",pointerDownHandler);
+
+      addEventListener("pointermove",pointerMoveHandler);
       addEventListener("mousemove",pointerMoveHandler);
+      addEventListener("touchmove",pointerMoveHandler);
+
+      addEventListener("pointerup",pointerUpHandler);
       addEventListener("mouseup",pointerUpHandler);
+      addEventListener("touchend",pointerUpHandler);
+
       iv = setInterval( updatePosition, updateIntervalInMs );
     }
 
@@ -87,13 +97,25 @@
     function pointerUpHandler(e){
       e.preventDefault();
       elem.removeAttribute("data-dragging");
-      removeEventListener("mouseup",pointerUpHandler);
+      
+      elem.addEventListener("pointerdown",pointerDownHandler);
       elem.addEventListener("mousedown",pointerDownHandler);
+      elem.addEventListener("touchstart",pointerDownHandler);
+
+      removeEventListener("pointermove",pointerMoveHandler);
       removeEventListener("mousemove",pointerMoveHandler);
+      removeEventListener("touchmove",pointerMoveHandler);
+
+      removeEventListener("pointerup",pointerUpHandler);
+      removeEventListener("mouseup",pointerUpHandler);
+      removeEventListener("touchend",pointerUpHandler);
+
       clearInterval( iv );
     }
 
+    elem.addEventListener("pointerdown",pointerDownHandler);
     elem.addEventListener("mousedown",pointerDownHandler);
+    elem.addEventListener("touchstart",pointerDownHandler);
     
   };
 
