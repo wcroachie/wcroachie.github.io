@@ -79,6 +79,25 @@
     }
   }
 
+  onerror = function(){
+    console.error.apply( console, arguments );
+  };
+
+  addEventListener("error",function(e){
+    var proto = e.__proto__;
+    var clone = {};
+    for( var key in proto ){
+      clone[key] = e[key] + "";
+    }
+    console.error( e, JSON.stringify(clone,null,"  ") );
+  });
+
+  setTimeout(function(){
+    asdf
+  },2000);
+
+  wrapper.style.width = "512px";
+  wrapper.style.height = "512px";
 
   setTimeout( function(){
 
@@ -86,11 +105,6 @@
     esx.makeDraggable( wrapper, Math.floor(1000/60) );
 
   }, 200 );
-
-  // var test = document.body.appendChild( document.createElement("div"));
-  // test.style = "position:fixed;left:0;top:0;width:100px;height:100px;border:1px solid gray;z-index:999999999;"
-  // esx.makeDraggable( test );
-  // test.textContent = "akjsahflkjds"
 
 
 }()
