@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8">
+     <style>
+
+      *{
+        box-sizing:border-box;
+      }
+
+      form, pre{
+        position:absolute;
+        display:block;
+      }
+
+      form{
+        left:0;
+        top:0;
+        width:100%;
+        height:20px;
+        border:1px solid sienna;
+      }
+
+      pre{
+        left:0;
+        top:20px;
+        width:100%;
+        height:calc(100% - 20px);
+        border:5px solid gray;
+        margin:0;
+        overflow:auto;
+      }
+    
+     </style>
+   </head>
+   <!-- adding these inline event handlers fixes a bug in safari iOS -->
+    <body ontouchstart onclick ondblclick>
+      <form action="javascript:;">
+        <input type="text">
+        <button></button>
+      </form>
+      <pre>
+      </pre>
+      <script>
+        addEventListener("message",function(e){
+          document.querySelector("pre").innerHTML += e.data;
+        });
+      </script>
+   </body>
+ </html>
