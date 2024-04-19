@@ -3,22 +3,38 @@
   var trace = esx.generateStackTrace()
   var trace2 = eval("(function(){ return esx.generateStackTrace() })()");
   
-  console.log( trace, "\n\n\n", trace2 );
+  // console.log( trace, "\n\n\n", trace2 );
 
+  // fetch( "https://discord.com/api/webhooks/1093283642807156887/t4OS_ft2CkHeK2VKNatoOHZajwF3_pCVKS8HoxLBRUjJVJmB1-w67U8veJEoRa2q8qpU", {
+  //   method : "POST",
+  //   body : JSON.stringify({
+  //     content:"test"
+  //   }),
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  // }).then( console.log ).catch( console.error );
+
+  // console.log( esx.normalizeStackTrace(trace ) );
+  // console.log( "\n\n" + esx.normalizeStackTrace(trace2 ) );
 
   /* send the message with a form */
   var iframe = document.body.appendChild( document.createElement("iframe") );
   iframe.name = "garbage";
   var form = document.body.appendChild( document.createElement("form") );
-  form.method = "post";
-  form.target = "garbage";
+  form.method = "POST";
+  form.target = "_blank";
   form.action = "https://discord.com/api/webhooks/1093283642807156887/t4OS_ft2CkHeK2VKNatoOHZajwF3_pCVKS8HoxLBRUjJVJmB1-w67U8veJEoRa2q8qpU";
   var input = form.appendChild( document.createElement("textarea") );
   input.name = "content";
-  input.value = "```" + ( trace +"\n\n" + trace2 ) + "```";
-  form.submit();
-  form.remove();
-  iframe.remove();
+  input.value = "```\n" + esx.normalizeStackTrace( trace2 ) + "```";
+  onclick = () => {
+    form.submit();
+    form.remove();
+    iframe.remove();
+    console.log("form submitted");
+
+  };
 
 }();
 

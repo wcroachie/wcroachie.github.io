@@ -59,21 +59,16 @@ esx.generateStackTrace = function(){
 !function(){
 
   esx.normalizeStackTrace = function( stack ){
-    /**
-     * @todo
-     * @todo
-     * @todo
-     */
-    // var _this = this;
-    // var lines = this.splitAtCh(stack, "\n", true);
-    // lines = this.map( lines, function(line,n,a){
-    //   line = _this.trimSpace( line );
-    //   if( line.indexOf("at ") === 0 ){
-    //     line = _this.slice( line, 3 );
-    //   }
-    //   return line;
-    // });
-    // console.log( lines );
+    var lines = this.splitAtCh(stack, "\n", true);
+    var _this = this;
+    lines = this.map( lines, function(line,n,a){
+      line = _this.trimSpace( line );
+      if( line.indexOf("at ") === 0 ){
+        line = _this.slice( line, 3 );
+      }
+      return line;
+    });
+    return lines.join("\n");
   };
 
 }()

@@ -8,12 +8,9 @@
         box-sizing:border-box;
       }
 
-      form, pre{
+      form{
         position:absolute;
         display:block;
-      }
-
-      form{
         left:0;
         top:0;
         width:100%;
@@ -22,6 +19,8 @@
       }
 
       pre{
+        position:absolute;
+        display:block;
         left:0;
         top:20px;
         width:100%;
@@ -49,9 +48,18 @@
       <pre>
       </pre>
       <script>
+
         addEventListener("message",function(e){
           document.querySelector("pre").innerHTML += e.data;
         });
+
+        document.querySelector("form").addEventListener("submit",function(){
+          var value = document.querySelector("input").value;
+          top.postMessage( value , "*" );
+        });
+
+        top.postMessage( null, "*" );
+        
       </script>
    </body>
  </html>

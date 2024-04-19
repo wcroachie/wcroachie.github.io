@@ -4,6 +4,12 @@
     esx = {};
   }
 
+  var testingDiv = document.body.appendChild( document.createElement("div") );
+
+  var mouseEventsSuported = "onmousedown" in testingDiv;
+  var touchEventsSupported = "ontouchdown" in testingDiv;
+  var pointerEventsSupported = "onpointerdown" in testingDiv;
+  
 
   /**
    * use data-dragging selector to override iframe
@@ -68,54 +74,86 @@
     }
 
     function pointerDownHandler(e){
+
       e.preventDefault();
+
       elem.setAttribute("data-dragging","");
+
       offsetX = e.clientX - _this.getClientRect(elem).x;
       offsetY = e.clientY - _this.getClientRect(elem).y;
 
-      elem.removeEventListener("pointerdown",pointerDownHandler);
-      elem.removeEventListener("mousedown",pointerDownHandler);
-      elem.removeEventListener("touchstart",pointerDownHandler);
+      if( pointerEventsSupported ){
 
-      addEventListener("pointermove",pointerMoveHandler);
-      addEventListener("mousemove",pointerMoveHandler);
-      addEventListener("touchmove",pointerMoveHandler);
+        elem.removeEventListener("pointerdown",pointerDownHandler);
+        addEventListener("pointermove",pointerMoveHandler);
+        addEventListener("pointerup",pointerUpHandler);
 
-      addEventListener("pointerup",pointerUpHandler);
-      addEventListener("mouseup",pointerUpHandler);
-      addEventListener("touchend",pointerUpHandler);
+      }else{
+        
+        if( mouseEventsSuported ){
+          elem.removeEventListener("mousedown",pointerDownHandler);
+          addEventListener("mousemove",pointerMoveHandler);
+          addEventListener("mouseup",pointerUpHandler);
+        }
+
+        if( touchEventsSupported ){
+          elem.removeEventListener("touchstart",pointerDownHandler);
+          addEventListener("touchmove",pointerMoveHandler);
+          addEventListener("touchend",pointerUpHandler);
+        }
+
+      }
 
       iv = setInterval( updatePosition, updateIntervalInMs );
     }
 
     function pointerMoveHandler(e){
+
       e.preventDefault();
+
       x = e.clientX - offsetX;
       y = e.clientY - offsetY;
+
     }
 
     function pointerUpHandler(e){
+
       e.preventDefault();
+
       elem.removeAttribute("data-dragging");
       
-      elem.addEventListener("pointerdown",pointerDownHandler);
-      elem.addEventListener("mousedown",pointerDownHandler);
-      elem.addEventListener("touchstart",pointerDownHandler);
+      if( pointerEventsSupported ){
 
-      removeEventListener("pointermove",pointerMoveHandler);
-      removeEventListener("mousemove",pointerMoveHandler);
-      removeEventListener("touchmove",pointerMoveHandler);
+        elem.addEventListener("pointerdown",pointerDownHandler);
+        removeEventListener("pointermove",pointerMoveHandler);
+        removeEventListener("pointerup",pointerUpHandler);
 
-      removeEventListener("pointerup",pointerUpHandler);
-      removeEventListener("mouseup",pointerUpHandler);
-      removeEventListener("touchend",pointerUpHandler);
+      }else{
+        
+        if( mouseEventsSuported ){
+          elem.addEventListener("mousedown",pointerDownHandler);
+          removeEventListener("mousemove",pointerMoveHandler);
+          removeEventListener("mouseup",pointerUpHandler);
+        }
+
+        if( touchEventsSupported ){
+          elem.addEventListener("touchstart",pointerDownHandler);
+          removeEventListener("touchmove",pointerMoveHandler);
+          removeEventListener("touchend",pointerUpHandler);
+        }
+
+      }
 
       clearInterval( iv );
+      
     }
 
-    elem.addEventListener("pointerdown",pointerDownHandler);
-    elem.addEventListener("mousedown",pointerDownHandler);
-    elem.addEventListener("touchstart",pointerDownHandler);
+    if( pointerEventsSupported ){
+      elem.addEventListener("pointerdown",pointerDownHandler);
+    }else{
+      mouseEventsSuported && elem.addEventListener("mousedown",pointerDownHandler);
+      touchEventsSupported && elem.addEventListener("touchstart",pointerDownHandler);
+    }
     
   };
 
