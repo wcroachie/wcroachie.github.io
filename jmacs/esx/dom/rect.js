@@ -47,12 +47,14 @@
 
     }
 
-    return {
+    var obj = {
       x : x,
       y : y,
       width : width,
       height : height
     };
+
+    return obj;
 
   };
 

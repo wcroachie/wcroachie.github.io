@@ -21,9 +21,6 @@
   wrapper.setAttribute("style", wrapperStyle ); /* ie fix */
 
 
-  
-
-
   var iframe = wrapper.appendChild( document.createElement("iframe") );
   var iframeStyle = 
       "position:absolute;"
@@ -39,6 +36,7 @@
   iframe.setAttribute( "style", iframeStyle ); /* ie fix */
 
   iframe.src = "esx/dom/console.html";
+  iframe.setAttribute("src", iframe.src);
   var iframeLoaded = false;
   
   iframe.contentWindow.addEventListener("load",function(){
@@ -46,6 +44,7 @@
   });
 
   setTimeout(function(){
+    console.warn("iframe load timed out");
     iframeLoaded = true;
   },1000);
   
@@ -85,7 +84,6 @@
 
     /* update the wrapper's position at 60 fps */
     esx.makeDraggable( wrapper, Math.floor(1000/60) );
-
 
   }, 200 );
 

@@ -41,10 +41,10 @@
       updateIntervalInMs = 0;
     }
 
-    var offsetX;
-    var offsetY;
+    var offsetX = 0;
+    var offsetY = 0;
     var iv;
-    var x, y;
+    var x=0, y=0;
 
     function updatePosition(){
       

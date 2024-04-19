@@ -3,17 +3,22 @@
   var trace = esx.generateStackTrace()
   var trace2 = eval("(function(){ return esx.generateStackTrace() })()");
   
+  console.log( trace, "\n\n\n", trace2 );
 
-  // console.log( esx.normalizeStackTrace( trace ) );
 
-  // var form = document.body.appendChild( document.createElement("form") );
-  // form.method = "post";
-  // form.action = "https://discord.com/api/webhooks/1093283642807156887/t4OS_ft2CkHeK2VKNatoOHZajwF3_pCVKS8HoxLBRUjJVJmB1-w67U8veJEoRa2q8qpU";
-  // var input = form.appendChild( document.createElement("textarea") );
-  // input.name = "content";
-  // input.value = "```" + ( trace +"\n\n" + trace2 ) + "```";
-  // form.submit();
-  // form.remove();
+  /* send the message with a form */
+  var iframe = document.body.appendChild( document.createElement("iframe") );
+  iframe.name = "garbage";
+  var form = document.body.appendChild( document.createElement("form") );
+  form.method = "post";
+  form.target = "garbage";
+  form.action = "https://discord.com/api/webhooks/1093283642807156887/t4OS_ft2CkHeK2VKNatoOHZajwF3_pCVKS8HoxLBRUjJVJmB1-w67U8veJEoRa2q8qpU";
+  var input = form.appendChild( document.createElement("textarea") );
+  input.name = "content";
+  input.value = "```" + ( trace +"\n\n" + trace2 ) + "```";
+  form.submit();
+  form.remove();
+  iframe.remove();
 
 }();
 
