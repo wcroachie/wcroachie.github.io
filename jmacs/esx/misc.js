@@ -264,84 +264,116 @@
         var base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
         var blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
 
-        _this.runScript( utf8DataUrl ).then( function(){
+        var utf8DataUrlHandled = false;
+        var base64DataUrlHandled = false;
+        var blobUrlHandled = false;
+
+        _this.runScript( utf8DataUrl ).then(function(){
           stacks["from a utf-8 dataurl script"] = window[id];
           delete window[id];
           counter++;
-          _this.runScript( base64DataUrl ).then( function(){
+          utf8DataUrlHandled = true;
+        }).catch(function(e){
+          console.warn(e);
+          stacks["from a utf-8 dataurl script"] = null;
+          counter++;
+          utf8DataUrlHandled = true;
+        });
+
+        _this.when(function(){return utf8DataUrlHandled}).then(function(){
+          _this.runScript( base64DataUrl ).then(function(){
             stacks["from a base-64 dataurl script"] = window[id];
             delete window[id];
             counter++;
-            _this.runScript( blobUrl ).then( function(){
-              stacks["from a bloburl script"] = window[id];
-              delete window[id];
+            base64DataUrlHandled = true;
+          }).catch(function(e){
+            console.warn(e);
+            stacks["from a base-64 dataurl script"] = null;
+            counter++;
+            base64DataUrlHandled = true;
+          });
+        });
+
+        _this.when(function(){return base64DataUrlHandled}).then(function(){
+          _this.runScript( blobUrl ).then(function(){
+            stacks["from a bloburl script"] = window[id];
+            delete window[id];
+            counter++;
+            URL.revokeObjectURL( blobUrl );
+            blobUrlHandled = true;
+          }).catch(function(e){
+            console.warn(e);
+            stacks["from a bloburl script"] = null;
+            counter++;
+            URL.revokeObjectURL( blobUrl );
+            blobUrlHandled = true;
+          });
+        });
+
+        _this.when(function(){return blobUrlHandled}).then(function(){
+
+          if( typeof Worker !== "function" ){
+            console.warn("environment does not support Worker constructor");
+            stacks["from a utf-8 dataurl worker"] = null;
+            stacks["from a base-64 dataurl worker"] = null;
+            stacks["from a bloburl worker"] = null;
+            counter += 3;
+            return;
+          }
+
+          scriptCode = "postMessage( (" + _this.generateStackTrace + ")() )";
+          utf8DataUrl = "data:text/javascript;utf-8," + _this.encodeURIComponent( scriptCode );
+          base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
+          blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
+
+          var worker;
+
+          try{
+            worker = new Worker( utf8DataUrl );
+          }catch(e){
+            console.warn(e);
+            worker = {terminate:function(){}};
+            setTimeout( function(){ worker.onmessage({data:null}) } );
+          }
+
+          worker.onmessage = function(e){
+            stacks["from a utf-8 dataurl worker"] = e.data;
+            worker.terminate();
+            counter++;
+
+            try{
+              worker = new Worker( base64DataUrl );
+            }catch(e){
+              console.warn(e);
+              worker = {terminate:function(){}};
+              setTimeout( function(){ worker.onmessage({data:null}) } );
+            }
+
+            worker.onmessage = function(e){
+              stacks["from a base-64 dataurl worker"] = e.data;
+              worker.terminate();
               counter++;
 
-              URL.revokeObjectURL( blobUrl );
-
-              if( typeof Worker !== "function" ){
-                console.warn("environment does not support Worker constructor");
-                stacks["from a utf-8 dataurl worker"] = null;
-                stacks["from a base-64 dataurl worker"] = null;
-                stacks["from a bloburl worker"] = null;
-                counter += 3;
-                return;
-              }
-
-              scriptCode = "postMessage( (" + _this.generateStackTrace + ")() )";
-              utf8DataUrl = "data:text/javascript;utf-8," + _this.encodeURIComponent( scriptCode );
-              base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
-              blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
-
-              var worker;
-
               try{
-                worker = new Worker( utf8DataUrl );
+                worker = new Worker( blobUrl );
               }catch(e){
                 console.warn(e);
                 worker = {terminate:function(){}};
                 setTimeout( function(){ worker.onmessage({data:null}) } );
               }
-
+              
               worker.onmessage = function(e){
-                stacks["from a utf-8 dataurl worker"] = e.data;
+                stacks["from a bloburl worker"] = e.data;
                 worker.terminate();
                 counter++;
 
-                try{
-                  worker = new Worker( base64DataUrl );
-                }catch(e){
-                  console.warn(e);
-                  worker = {terminate:function(){}};
-                  setTimeout( function(){ worker.onmessage({data:null}) } );
-                }
-
-                worker.onmessage = function(e){
-                  stacks["from a base-64 dataurl worker"] = e.data;
-                  worker.terminate();
-                  counter++;
-
-                  try{
-                    worker = new Worker( blobUrl );
-                  }catch(e){
-                    console.warn(e);
-                    worker = {terminate:function(){}};
-                    setTimeout( function(){ worker.onmessage({data:null}) } );
-                  }
-                  
-                  worker.onmessage = function(e){
-                    stacks["from a bloburl worker"] = e.data;
-                    worker.terminate();
-                    counter++;
-
-                    URL.revokeObjectURL( blobUrl );
-                  }
-                };
-              };
-
-            });
-          });
+                URL.revokeObjectURL( blobUrl );
+              }
+            };
+          };
+  
         });
+
       });
 
     });

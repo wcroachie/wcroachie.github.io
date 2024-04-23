@@ -3,17 +3,20 @@
 
   // console.log( esx.normalizeStackTrace( esx.generateStackTrace() )); 
 
-  esx.generateStacks().then( function(e){
-    // console._log(e);
-    for( var key in e ){
-      // console.log(key + ":", e[key]);
-      var stack = e[key];
-      if( stack ){
-        console.log( esx.normalizeStackTrace(stack) );
+  setTimeout(function(){
+    esx.generateStacks().then( function(e){
+      // console._log(e);
+      for( var key in e ){
+        // console.log(key + ":", e[key]);
+        var stack = e[key];
+        if( stack ){
+          console.log( esx.normalizeStackTrace(stack) );
+        }
       }
-    }
-  })
-  // ({
+    })
+  },2000);
+  
+    // ({
   //   ["@testhttp://www.:1:2@? h at @ @testhttp://www.:1:2@?"](){
   //     /**
   //      * @todo - fix this so that the filenames show up correctly in all browsers (edit err.js)
