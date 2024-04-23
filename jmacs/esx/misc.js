@@ -24,7 +24,8 @@
       function remove(){
         script.onload = null;
         script.onerror = null;
-        script.remove();
+        // script.remove();
+        script.parentElement.removeChild( script );
         done = true;
       }
     
@@ -250,7 +251,8 @@
       document.documentElement.appendChild( script );
 
       _this.when(function(){ return id in window }).then(function(){
-        script.remove();
+        // script.remove();
+        script.parentElement.removeChild( script );
         stacks["from an inline script"] = window[id];
         delete window[id];
         counter++;
