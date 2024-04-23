@@ -34,6 +34,34 @@
 
   };
 
+  esx.splitAtChs = function( str, chArr, omitEmptyStrings ){
+
+    var pieces=[], piece="";
+
+    for( var i=0; i<str.length; i++ ){
+      if( this.indexOf( chArr, str[i] ) !== -1 ){
+        this.push( pieces, [piece] );
+        piece = "";
+      }else{
+        piece += str[i];
+      }
+    }
+
+    this.push( pieces, [piece] );
+    
+    if( omitEmptyStrings ){
+      var pieces2 = [];
+      for( var i=0; i<pieces.length; i++ ){
+        if( pieces[i] !== "" ){
+          this.push( pieces2, [pieces[i]] );
+        }
+      }
+      return pieces2;
+    }
+
+    return pieces;
+  };
+
   esx.padStart = function( str, maxLen, char ){
     while( str.length < maxLen ){
       str = char + str;
@@ -53,7 +81,16 @@
     return str;
   };
 
-
+  esx.trimWhitespace = function( str ){
+    var whitespaceCharacters = " \f\n\r\t\v";
+    while( whitespaceCharacters.indexOf( str[0] ) !== -1 ){
+      str = this.slice( str, 1 );
+    }
+    while( whitespaceCharacters.indexOf( str[ str.length - 1 ] ) !== -1 ){
+      str = this.slice( str, 0, -1 );
+    }
+    return str;
+  }
 
   /* check if a string can be coerced to a number without being NaN */
   esx.canBeNum = function( str ){
@@ -94,6 +131,26 @@
       out += ch;
     }
     return out;
+  };
+
+  esx.repeat = function( str, times ){
+    var out = "";
+    for( var i=0; i<times; i++ ){
+      out += str;
+    }
+    return out;
+  };
+
+  esx.replaceFirst = function( str, substringToReplace, substitute ){
+    var start = str.indexOf( substringToReplace );
+    if( start > -1 ){
+      var end = start + substringToReplace.length;
+      var before = this.slice( str, 0, start );
+      var after = this.slice( str, end );
+      return before + substitute + after;
+    }else{
+      return str;
+    }
   };
 
   esx.replaceAll = function( str, substringToReplace, substitute ){

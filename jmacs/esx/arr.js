@@ -31,7 +31,7 @@
   esx.pop = function( arr ){
     var item = arr[arr.length - 1];
     delete arr[arr.length - 1];
-    arr.length = arr.length - 1;
+    arr.length = Math.max( arr.length - 1, 0 );
     return item;
   };
   

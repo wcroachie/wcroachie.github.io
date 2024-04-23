@@ -19,37 +19,49 @@ if( typeof esx === "undefined" ){
   esx = {};
 }
 
-esx.GLOBAL_SCOPE_STACK = "(no stack)";
+
 
 /**
  * purposefully throw an error by trying to
  * access a property from null. assuming there
  * may not be access to a global Error constructor.
  * in all versions of JS that use try...catch,
- * this should generate an error or error-like
+ * this should generate an error or exception-like
  * object that should have a stack. if there is
  * no stack property, the caught value is coerced
  * to a string.
  **/
 
 try{
-  null.a
+  null.$
 }catch(e){
-  esx.GLOBAL_SCOPE_STACK = e.stack || (e + "");
+  if( typeof e === "object" && e !== null && "stack" in e ){
+    esx.GLOBAL_SCOPE_STACK = e.stack;
+  }else{
+    esx.GLOBAL_SCOPE_STACK = e;
+  }
 }
 
+/* coerce to string */
+esx.GLOBAL_SCOPE_STACK = esx.GLOBAL_SCOPE_STACK + "";
+
 esx.generateStackTrace = function(){
-  var linesToRemoveCount = Math.max( this.splitAtCh( this.GLOBAL_SCOPE_STACK, "\n", true ).length - 1, 0 );
   var stack;
   try{
-    null.a
+    null.$
   }catch(e){
-    stack = e.stack || (e + "");
+    if( typeof e === "object" && e !== null && "stack" in e ){
+      stack = e.stack;
+    }else{
+      stack = e;
+    }
   }
-  var stackLines = this.splitAtCh( stack, "\n", true );
-  stackLines = this.slice( stackLines, linesToRemoveCount );
-  return this.join( stackLines, "\n" );
+  /* coerce to string */
+  stack = stack + "";
+  return stack;
 };
+
+
 
 /**
  * now that that is done, any additional methods can
@@ -58,17 +70,80 @@ esx.generateStackTrace = function(){
 
 !function(){
 
-  esx.normalizeStackTrace = function( stack ){
-    var lines = this.splitAtCh(stack, "\n", true);
-    var _this = this;
-    lines = this.map( lines, function(line,n,a){
-      line = _this.trimSpace( line );
-      if( line.indexOf("at ") === 0 ){
-        line = _this.slice( line, 3 );
+  esx.parseStackLine = function( line ){
+
+    var originalLine = line;
+
+    line = this.trimWhitespace( line );
+    
+    if( line[line.length - 1] === ")" ){
+      line = this.slice( line, 0, -1 );
+    }
+
+    var betweenColons  = this.splitAtCh( line, ":" );
+    
+    var columnNumber = this.pop( betweenColons );
+    var lineNumber = this.pop( betweenColons );
+    
+    var filename = line;
+
+    if(
+      typeof columnNumber === "string" &&
+      typeof lineNumber === "string" &&
+      columnNumber.length &&
+      lineNumber.length &&
+      this.canBeNum(columnNumber) &&
+      this.canBeNum(lineNumber)
+    ){
+      filename = this.slice( filename, 0, -columnNumber.length - 1 - lineNumber.length - 1 );
+      columnNumber = columnNumber * 1;
+      lineNumber = lineNumber * 1;
+    }else{
+      columnNumber = null;
+      lineNumber = null;
+    }
+
+    if( filename.indexOf("[native code]") === -1 ){
+      filename = this.pop( this.splitAtCh( filename, " ", true ) );
+      filename = this.splitAtCh( filename, "#", true )[0];
+      filename = this.splitAtCh( filename, "?", true )[0];
+      filename = this.pop( this.splitAtCh( filename, "@", true ) );
+      if( filename[0] === "(" ){
+        filename = this.slice( filename, 1 );
       }
-      return line;
+    }
+    
+    console.warn( filename || "NONE OR EMPTY FILENAME" );
+
+    var ret = {
+      content : originalLine,
+      line : lineNumber,
+      column : columnNumber,
+      filename : filename
+    };
+
+    return ret;
+
+  };
+
+  esx.normalizeStackTrace = function( stack ){
+    
+    var lines = this.splitAtCh(stack, "\n", true);
+
+    /**
+     * remove the parts of the stack that are in err.js (this file)
+     */
+    var linesToRemoveCount = Math.max( this.splitAtCh( this.GLOBAL_SCOPE_STACK, "\n", true ).length, 0 );
+    lines = this.slice( lines, linesToRemoveCount );
+
+    var _this = this;
+
+    lines = this.map( lines, function(line,n,a){
+      return _this.parseStackLine( line );
     });
-    return lines.join("\n");
+
+    return lines;
+
   };
 
 }()

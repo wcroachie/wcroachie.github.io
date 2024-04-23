@@ -22,18 +22,21 @@
 
     function resolve( val ){
       if( !errored ){
-        resolveCallback( val );
+        typeof resolveCallback === "function" && resolveCallback( val );
       }
     }
 
     function reject( val ){
       if( !errored ){
         errored = true;
-        rejectCallback( val );
+        typeof rejectCallback === "function" ? rejectCallback( val ) : console.error("unhandled promiselike rejection: ",val);
       }
     }
 
-    callback( resolve, reject );
+    /* needs to be at least 1 event cycle to run then and catch, otherwise throws an error! */
+    setTimeout(function(){
+      callback( resolve, reject );
+    });
 
   };
 

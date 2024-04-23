@@ -4,6 +4,60 @@
     esx = {};
   }
 
+  esx.runScript = function( src ){
+    
+    return new this.PromiseLike(function(res,rej){
+
+      if( typeof document !== "object" ){
+        try{
+          importScripts( url );
+          res();
+        }catch(e){
+          rej(e);
+        }
+        return;
+      }
+
+      var script = document.createElement("script");
+      var done = false;
+
+      function remove(){
+        script.onload = null;
+        script.onerror = null;
+        script.remove();
+        done = true;
+      }
+    
+      script.onload = function(){
+        console.log("successfully loaded script from "+src+".");
+        remove();
+        res();
+      };
+    
+      script.onerror = function(){
+        remove();
+        rej( "error loading script from "+src+"." );
+      };
+    
+      /* timeout after 20 seconds */
+      setTimeout( function(){
+        if( !done ){
+          remove();
+          rej( "timeout for loading resource from "+src+"." );
+        }
+      }, 20000 );
+    
+      script.src = src;
+    
+      /* needs to be documentElement */
+      document.documentElement.appendChild(script);
+
+    });
+
+  };
+
+
+
   esx.ms2hhmmssmmm = function( ms ){
 
     var neg = false;
@@ -97,6 +151,177 @@
     this.sleep();
     return new Date();
   };
+
+
+  esx.when = function( conditionCallback, intervalInMs ){
+    if( typeof intervalInMs === "undefined" ){
+      intervalInMs = 0;
+    }
+    return new this.PromiseLike(function(res,rej){
+      !function wait(){
+        if( conditionCallback() ){
+          res();
+        }else{
+          setTimeout( wait, intervalInMs );
+        }
+      }();
+    })
+  }
+
+  /* evaluates globally, circumvents call stack */
+  esx.evalFromJSUrl = function( str ){
+    var _this = this;
+    return new this.PromiseLike(function(res,rej){
+      var id = _this.randomId();
+      var a = document.createElement("a");
+      a.href = "javascript:void(" + _this.encodeURIComponent( "window['" + id + "'] = " + str + ")" );
+      _this.when( function(){ return id in window } ).then( function(){
+        var result = window[id];
+        delete window[id];
+        res( result );
+      });
+      a.click();
+    });
+  };
+
+
+
+
+
+  esx.generateStacks = function(){
+
+    var _this = this;
+
+    return new this.PromiseLike(function(res,rej){
+
+      var stacks = {};
+      var counter = 0;
+
+      _this.when( function(){
+        return counter === 14
+      }).then( function(){
+        res( stacks )
+      });
+
+      stacks["from a normal script"] = _this.generateStackTrace();
+      counter ++;
+
+      typeof Promise === "function" ? new Promise(function(res,rej){
+        stacks["from inside a promise callback"] = _this.generateStackTrace();
+        counter ++;
+      }) : function(){
+        stacks["from inside a promise callback"] = null;
+        counter ++;
+      }();
+        
+      if( typeof eval === "function" ){
+        stacks["from inside eval"] = eval("_this.generateStackTrace()");
+        stacks["from inside nested eval"] = eval("eval('_this.generateStackTrace()')");
+        stacks["from inside double nested eval"] = eval("eval('eval(\"_this.generateStackTrace()\")')");
+      }else{
+        stacks["from inside eval"] = null;
+        stacks["from inside nested eval"] = null;
+        stacks["from inside double nested eval"] = null;
+      }
+
+      counter += 3;
+
+      if( typeof Function === "function" ){
+        stacks["from a Function constructor"] = new Function("return (" + _this.generateStackTrace + ")()" )();
+      }else{
+        try{
+          stacks["from a Function constructor"] = (function(){}).constructor("return (" + _this.generateStackTrace + ")()")();
+        }catch(e){
+          console.warn(e);
+          stacks["from a Function constructor"] = null;
+        }
+      }
+
+      counter ++;
+
+      _this.evalFromJSUrl( "(" + _this.generateStackTrace + ")()" ).then(function(result){
+        stacks["from inside a javascript: url"] = result;
+        counter ++;
+      });
+
+      var script = document.createElement("script");
+      var id = _this.randomId();
+      script.textContent = "window['" + id + "'] = (" + _this.generateStackTrace + ")()";
+      document.documentElement.appendChild( script );
+
+      _this.when(function(){ return id in window }).then(function(){
+        script.remove();
+        stacks["from an inline script"] = window[id];
+        delete window[id];
+        counter++;
+
+        id = _this.randomId();
+        var scriptCode = "window['" + id + "'] = ( " + _this.generateStackTrace + " )()";
+
+        var utf8DataUrl = "data:text/javascript;utf-8," + _this.encodeURIComponent( scriptCode );
+        var base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
+        var blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
+
+        _this.runScript( utf8DataUrl ).then( function(){
+          stacks["from a utf-8 dataurl script"] = window[id];
+          delete window[id];
+          counter++;
+          _this.runScript( base64DataUrl ).then( function(){
+            stacks["from a base-64 dataurl script"] = window[id];
+            delete window[id];
+            counter++;
+            _this.runScript( blobUrl ).then( function(){
+              stacks["from a bloburl script"] = window[id];
+              delete window[id];
+              counter++;
+
+              URL.revokeObjectURL( blobUrl );
+
+              if( typeof Worker !== "function" ){
+                console.warn("environment does not support Worker constructor");
+                stacks["from a utf-8 dataurl worker"] = null;
+                stacks["from a base-64 dataurl worker"] = null;
+                stacks["from a bloburl worker"] = null;
+                counter += 3;
+                return;
+              }
+
+              scriptCode = "postMessage( (" + _this.generateStackTrace + ")() )";
+              utf8DataUrl = "data:text/javascript;utf-8," + _this.encodeURIComponent( scriptCode );
+              base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
+              blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
+
+              var worker = new Worker( utf8DataUrl );
+              worker.onmessage = function(e){
+                stacks["from a utf-8 dataurl worker"] = e.data;
+                worker.terminate();
+                counter++;
+
+                worker = new Worker( base64DataUrl );
+                worker.onmessage = function(e){
+                  stacks["from a base-64 dataurl worker"] = e.data;
+                  worker.terminate();
+                  counter++;
+
+                  worker = new Worker( blobUrl );
+                  worker.onmessage = function(e){
+                    stacks["from a bloburl worker"] = e.data;
+                    worker.terminate();
+                    counter++;
+
+                    URL.revokeObjectURL( blobUrl );
+                  }
+                };
+              };
+
+            });
+          });
+        });
+      });
+
+    });
+  };
+
 
 
 }()
