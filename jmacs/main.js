@@ -8,7 +8,9 @@
     for( var key in e ){
       // console.log(key + ":", e[key]);
       var stack = e[key];
-      console.log( esx.normalizeStackTrace(stack) );
+      if( stack ){
+        console.log( esx.normalizeStackTrace(stack) );
+      }
     }
   })
   // ({

@@ -293,19 +293,42 @@
               base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
               blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
 
-              var worker = new Worker( utf8DataUrl );
+              var worker;
+
+              try{
+                worker = new Worker( utf8DataUrl );
+              }catch(e){
+                console.warn(e);
+                worker = {terminate:function(){}};
+                setTimeout( function(){ worker.onmessage({data:null}) } );
+              }
+
               worker.onmessage = function(e){
                 stacks["from a utf-8 dataurl worker"] = e.data;
                 worker.terminate();
                 counter++;
 
-                worker = new Worker( base64DataUrl );
+                try{
+                  worker = new Worker( base64DataUrl );
+                }catch(e){
+                  console.warn(e);
+                  worker = {terminate:function(){}};
+                  setTimeout( function(){ worker.onmessage({data:null}) } );
+                }
+
                 worker.onmessage = function(e){
                   stacks["from a base-64 dataurl worker"] = e.data;
                   worker.terminate();
                   counter++;
 
-                  worker = new Worker( blobUrl );
+                  try{
+                    worker = new Worker( blobUrl );
+                  }catch(e){
+                    console.warn(e);
+                    worker = {terminate:function(){}};
+                    setTimeout( function(){ worker.onmessage({data:null}) } );
+                  }
+                  
                   worker.onmessage = function(e){
                     stacks["from a bloburl worker"] = e.data;
                     worker.terminate();
