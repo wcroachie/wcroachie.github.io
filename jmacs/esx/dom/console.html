@@ -1,8 +1,136 @@
 <!DOCTYPE html>
  <html>
    <head>
-     <meta charset="utf-8">
-     <style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0">
+    <meta name="robots" content="none">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+
+    <!-- run AFTER metas but before any links or style -->
+    <script>
+    /*
+    * try to stop caching by changing the
+    * query params every refresh so it
+    * always loads new (good for debugging)
+    * 
+    * user "var" and no arrow functions so this can be used wherever
+    * 
+    */
+    !function(){
+      try{
+        var isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
+        var navEntries = performance.getEntriesByType("navigation");
+        if(navEntries){
+          if(navEntries[0]){
+            var p = navEntries[0].type;
+            if( p==="reload" || p==="back_forward" || p==="prerender" ){
+              isReloaded = true;
+            }
+          }
+        }
+        if( !location.search || isReloaded ){ 
+          location.search = Math.random().toString(36).slice(2) + "=" + Math.random().toString(36).slice(2);
+        }
+      }catch(e){
+        console.warn(e);
+      }
+    }();
+    </script>
+
+    <style>
+
+     
+      *{
+
+        image-rendering: pixelated;
+
+        /* global overrides to prevent weird behavior on mobile */
+        /* ios stuff */
+        text-size-adjust:none;
+        -webkit-text-size-adjust:none;
+        -moz-text-size-adjust:none;
+
+        -webkit-tap-highlight-color:transparent;
+
+        /* prevent accidental selection */
+        /* user-select:none; */
+        /* -webkit-user-select:none; */
+        /* -moz-user-select:none; */
+
+        -webkit-user-modify:none;
+        /* -moz-user-modify:none; */
+
+        -webkit-user-callout: none;
+        -webkit-user-drag: none;
+        -webkit-highlight: none;
+        -webkit-touch-callout:none;
+
+        scroll-behavior:smooth;
+
+        /* turn this off to turn off bouncing scroll */
+        /* overscroll-behavior: none; */
+
+      }
+
+      html, body{
+        position:absolute;
+        display:block;
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+      }
+
+      html{
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        overflow:hidden;
+      }
+
+      body{
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        left: env( safe-area-inset-left, 0 );
+        top: env( safe-area-inset-top, 0 );
+        width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) );
+        height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) );
+        overflow:auto;
+      }
+      
+      img{
+        /* prevent accidental selection */
+        user-select:none;
+        -webkit-user-select:none;
+        -moz-user-select:none;
+        /* but still keep touch-callout on mobile */
+        -webkit-touch-callout:default;
+      }
+
+    </style>
+
+    <!-- extra styles for ie, add after first script tag -->
+    <script>
+      !function(){
+        /* RESIZE FIX FOR IE */
+        /* make site appear larger on ie */
+        if( document.documentMode ){
+          var nativeDPI = screen.systemXDPI;
+          var visualDPI = screen.logicalXDPI;
+          var ratio = 100 * (visualDPI/nativeDPI);
+          document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
+        }
+      }();
+    </script>
+
+
+    <style>
 
       *{
         box-sizing:border-box;
@@ -38,6 +166,7 @@
       }
     
      </style>
+     
    </head>
    <!-- adding these inline event handlers fixes a bug in safari iOS -->
     <body ontouchstart onclick ondblclick>

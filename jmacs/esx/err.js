@@ -33,12 +33,16 @@ if( typeof esx === "undefined" ){
  **/
 
 try{
-  null.$
+  null.$ = 0;
 }catch(e){
-  if( typeof e === "object" && e !== null && "stack" in e ){
-    esx.GLOBAL_SCOPE_STACK = e.stack;
+  if( typeof e === "undefined" ){
+    esx.GLOBAL_SCOPE_STACK = "undefined";
   }else{
-    esx.GLOBAL_SCOPE_STACK = e;
+    if( typeof e === "object" && e !== null && "stack" in e ){
+      esx.GLOBAL_SCOPE_STACK = e.stack;
+    }else{
+      esx.GLOBAL_SCOPE_STACK = e;
+    }
   }
 }
 
@@ -48,12 +52,16 @@ esx.GLOBAL_SCOPE_STACK = esx.GLOBAL_SCOPE_STACK + "";
 esx.generateStackTrace = function(){
   var stack;
   try{
-    null.$
+    null.$ = 0;
   }catch(e){
-    if( typeof e === "object" && e !== null && "stack" in e ){
-      stack = e.stack;
+    if( typeof e === "undefined" ){
+      stack = "undefined";
     }else{
-      stack = e;
+      if( typeof e === "object" && e !== null && "stack" in e ){
+        stack = e.stack;
+      }else{
+        stack = e;
+      }
     }
   }
   /* coerce to string */
@@ -76,7 +84,10 @@ esx.generateStackTrace = function(){
 
     line = this.trimWhitespace( line );
     
+    var endedWithClosingParenthesis = false;
+
     if( line[line.length - 1] === ")" ){
+      endedWithClosingParenthesis = true;
       line = this.slice( line, 0, -1 );
     }
 
@@ -85,7 +96,7 @@ esx.generateStackTrace = function(){
     var columnNumber = this.pop( betweenColons );
     var lineNumber = this.pop( betweenColons );
     
-    var filename = line;
+    var filepath = line;
 
     if(
       typeof columnNumber === "string" &&
@@ -95,7 +106,7 @@ esx.generateStackTrace = function(){
       this.canBeNum(columnNumber) &&
       this.canBeNum(lineNumber)
     ){
-      filename = this.slice( filename, 0, -columnNumber.length - 1 - lineNumber.length - 1 );
+      filepath = this.slice( filepath, 0, -columnNumber.length - 1 - lineNumber.length - 1 );
       columnNumber = columnNumber * 1;
       lineNumber = lineNumber * 1;
     }else{
@@ -103,49 +114,45 @@ esx.generateStackTrace = function(){
       lineNumber = null;
     }
 
-    if( filename.indexOf("@") !== -1 ){
-      var beforeFirstAt = this.splitAtCh(filename,"@")[0];
-      filename = this.slice( filename, beforeFirstAt.length + 1 );
+    if( endedWithClosingParenthesis ){
+      filepath += ")";
     }
-    
-    if( filename.indexOf(" ") > -1 ){
-      filename = this.pop( this.splitAtCh( filename, " ", true ) );
+
+    filepath = this.trimSpace( filepath );
+
+    if( filepath.indexOf("@") !== -1 ){
+      var beforeFirstAt = this.splitAtCh(filepath,"@")[0];
+      filepath = this.slice( filepath, beforeFirstAt.length + 1 );
     }
-    // if( filename.indexOf("[native code]") === -1 ){
-      
-    //   filename = this.pop( this.splitAtCh( filename, "@", true ) );
-    //   if( filename[0] === "(" ){
-    //     filename = this.slice( filename, 1 );
-    //   }
-    // }else{
-    //   // filename = this.slice( filename, 0, -14 );
-    //   filename = "[native code]";
-    // }
-    
-    // if( originalLine === "eval code@" ){
-    //   filename = "eval code";
+
+    if( filepath.indexOf("at ") === 0 ){
+      filepath = this.slice( filepath, 3 );
+    }
+
+    // if( filepath.indexOf(" ") > -1 ){
+    //   filepath = this.pop( this.splitAtCh( filepath, " ", true ) );
     // }
 
-    if( filename[0] === "(" ){
-      filename = this.slice( filename, 1 );
-    }
+    // if( filepath[0] === "(" ){
+    //   filepath = this.slice( filepath, 1 );
+    // }
 
-    if( filename.indexOf("#") > -1 ){
-      filename = this.splitAtCh( filename, "#", true )[0];
-    }
+    // if( filepath.indexOf("#") > -1 ){
+    //   filepath = this.splitAtCh( filepath, "#", true )[0];
+    // }
 
-    if( filename.indexOf("?") > -1 ){
-      filename = this.splitAtCh( filename, "?", true )[0];
-    }
+    // if( filepath.indexOf("?") > -1 ){
+    //   filepath = this.splitAtCh( filepath, "?", true )[0];
+    // }
 
     console.error( originalLine );
-    console.warn( filename || "NONE OR EMPTY FILENAME" );
+    console.warn( filepath || "NONE OR EMPTY FILENAME" );
 
     var ret = {
       content : originalLine,
       line : lineNumber,
       column : columnNumber,
-      filename : filename
+      filepath : filepath
     };
 
     return ret;

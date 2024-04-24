@@ -187,7 +187,6 @@
 
 
 
-
   esx.generateStacks = function(){
 
     var _this = this;
@@ -200,15 +199,33 @@
       /* regular */
       window[id].fromSourceScript = _this.generateStackTrace();
 
+      var evalCode = 
+        "try{"
+      +   "null.$ = 2;"
+      +   "(function(){})() + \"\""
+      + "}catch(e){"
+      +   "if( typeof e === \"undefined\" ){"
+      +     "\"undefined\""
+      +   "}else{"
+      +     "if( typeof e === \"object\" && e !== null && \"stack\" in e ){"
+      +       "e.stack + \"\""
+      +     "}else{"
+      +       "e + \"\""
+      +     "}"
+      +   "}"
+      + "}";
+
       /* using eval */
       window[id].fromEval = null;
-      window[id].fromNestedEval = null;
-      window[id].fromDoubleNestedEval = null;
+      window[id].fromClosuredEval = null;
+      window[id].fromClosuredNestedEval = null;
+      window[id].fromClosuredDoubleNestedEval = null;
       
       if( typeof eval === "function" ){
-        window[id].fromEval = eval("(" + _this.generateStackTrace + ")()");
-        window[id].fromNestedEval = eval( 'eval("(" + _this.generateStackTrace + ")()")' );
-        window[id].fromDoubleNestedEval = eval("eval( 'eval(\"(\" + _this.generateStackTrace + \")()\")' )");
+        window[id].fromEval = eval( evalCode );
+        window[id].fromClosuredEval = eval("(" + _this.generateStackTrace + ")()");
+        window[id].fromClosuredNestedEval = eval( 'eval("(" + _this.generateStackTrace + ")()")' );
+        window[id].fromClosuredDoubleNestedEval = eval("eval( 'eval(\"(\" + _this.generateStackTrace + \")()\")' )");
       }
 
       /* function constructor stuff */
@@ -321,16 +338,23 @@
           console.warn(e);
         }
 
-        var workerA = new Worker( workerUtf8DataUrl );
-        var workerB = new Worker( workerBase64DataUrl );
+        try{
+          var workerA = new Worker( workerUtf8DataUrl );
+          workerA.onmessage = onmessage;
+          workerA.onerror = onexception;
+          workerA.onmessageerror = onexception;
+        }catch(e){
+          console.warn(e);
+        }
 
-        workerA.onmessage = onmessage;
-        workerA.onerror = onexception;
-        workerA.onmessageerror = onexception;
-
-        workerB.onmessage = onmessage;
-        workerB.onerror = onexception;
-        workerB.onmessageerror = onexception;
+        try{
+          var workerB = new Worker( workerBase64DataUrl );
+          workerB.onmessage = onmessage;
+          workerB.onerror = onexception;
+          workerB.onmessageerror = onexception;
+        }catch(e){
+          console.warn(e);
+        }
 
         try{
           var workerBlobUrl = URL.createObjectURL( new Blob([ generateWorkerCode("fromWorkerBlobUrl") ],{type:"text/javascript"}) );

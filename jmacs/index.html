@@ -33,7 +33,9 @@
           }
         }
         if( !location.search || isReloaded ){ 
-          location.search = Math.random().toString(36).slice(2) + "=" + Math.random().toString(36).slice(2);
+          var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
+          var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
+          location.search = a + "=" + b;
         }
       }catch(e){
         console.warn(e);
@@ -117,27 +119,99 @@
 
     </style>
 
-    <!-- <link rel="stylesheet" href="style/style.css"> -->
-
     <!-- extra styles for ie, add after first script tag -->
     <script>
     !function(){
-      /* RESIZE FIX FOR IE */
-      /* make site appear larger on ie */
-      if( document.documentMode ){
-        var nativeDPI = screen.systemXDPI;
-        var visualDPI = screen.logicalXDPI;
-        var ratio = 100 * (visualDPI/nativeDPI);
-        document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
+      try{
+        /* RESIZE FIX FOR IE */
+        /* make site appear larger on ie */
+        if( document.documentMode ){
+          var nativeDPI = screen.systemXDPI;
+          var visualDPI = screen.logicalXDPI;
+          var ratio = 100 * (visualDPI/nativeDPI);
+          document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
+        }
+      }catch(e){
+        console.warn(e);
       }
     }();
     </script>
+
+    <script>
+    /* resist caching of resources by adding random params to their urls */
+    /* for dev mode only!!! */
+    !function(){
+      
+      try{
+
+        if( (document.createElement("template") + "") === "[object HTMLTemplateElement]" ){
+
+          function addRandomParam( url ){
+            url += "";
+            if( url.indexOf("?") === -1 ){
+              url += "?"
+            }else{
+              url += "&"
+            }
+            var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
+            var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
+            url += a + "=" + b;
+            return url;
+          }
+
+          /* interrupt parser */
+          document.writeln("<"+"template>");
+
+          setTimeout(function(){
+            var template = document.querySelector("template");
+            
+            var scripts = template.content.querySelectorAll("script[src]");
+            for( var i=0; i<scripts.length; i++ ){
+              var script = scripts[i];
+              script.setAttribute("src", addRandomParam(script.getAttribute("src") ) );
+            }
+
+            var links = template.content.querySelectorAll("link[href][rel='stylesheet']");
+            for( var i=0; i<links.length; i++ ){
+              var link = links[i];
+              link.setAttribute("href", addRandomParam(link.getAttribute("href") ) );
+            }
+
+            var elemsForHead = template.content.querySelectorAll("link");
+            var elemsForBody = template.content.querySelectorAll(":not(link)");
+
+            template.parentElement.removeChild( template );
+
+            document.body.setAttribute("ontouchstart","");
+            document.body.setAttribute("onclick","");
+            document.body.setAttribute("ondblclick","");
+            
+            for( var i=0; i<elemsForHead.length; i++ ){
+              document.head.appendChild( elemsForHead[i] );
+            }
+            for( var i=0; i<elemsForBody.length; i++ ){
+              document.body.appendChild( elemsForBody[i] );
+            }
+
+          });
+
+        }
+
+      }catch(e){
+        
+        console.warn(e);
+
+      }
+
+    }();
+    </script>
+
+    <link rel="stylesheet" href="style.css">
 
   </head>
 
   <!-- adding these inline event handlers fixes a bug in safari iOS -->
   <body ontouchstart onclick ondblclick>
-    
     <script src="esx/arr.js"></script>
     <script src="esx/btoa.js"></script>
     <script src="esx/err.js"></script>
