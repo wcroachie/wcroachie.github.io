@@ -103,16 +103,40 @@ esx.generateStackTrace = function(){
       lineNumber = null;
     }
 
-    if( filename.indexOf("[native code]") === -1 ){
+    if( filename.indexOf("@") !== -1 ){
+      var beforeFirstAt = this.splitAtCh(filename,"@")[0];
+      filename = this.slice( filename, beforeFirstAt.length + 1 );
+    }else{
       filename = this.pop( this.splitAtCh( filename, " ", true ) );
-      filename = this.splitAtCh( filename, "#", true )[0];
-      filename = this.splitAtCh( filename, "?", true )[0];
-      filename = this.pop( this.splitAtCh( filename, "@", true ) );
-      if( filename[0] === "(" ){
-        filename = this.slice( filename, 1 );
-      }
     }
+    // if( filename.indexOf("[native code]") === -1 ){
+      
+    //   filename = this.pop( this.splitAtCh( filename, "@", true ) );
+    //   if( filename[0] === "(" ){
+    //     filename = this.slice( filename, 1 );
+    //   }
+    // }else{
+    //   // filename = this.slice( filename, 0, -14 );
+    //   filename = "[native code]";
+    // }
     
+    // if( originalLine === "eval code@" ){
+    //   filename = "eval code";
+    // }
+
+    if( filename[0] === "(" ){
+      filename = this.slice( filename, 1 );
+    }
+
+    if( filename.indexOf("#") > -1 ){
+      filename = this.splitAtCh( filename, "#", true )[0];
+    }
+
+    if( filename.indexOf("?") > -1 ){
+      filename = this.splitAtCh( filename, "?", true )[0];
+    }
+
+    console.error( originalLine );
     console.warn( filename || "NONE OR EMPTY FILENAME" );
 
     var ret = {
