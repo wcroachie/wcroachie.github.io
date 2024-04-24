@@ -24,7 +24,6 @@
       function remove(){
         script.onload = null;
         script.onerror = null;
-        // script.remove();
         script.parentElement.removeChild( script );
         done = true;
       }
@@ -254,6 +253,7 @@
       window[id].fromInlineScript = null;
       window[id].fromInlineScriptUtf8DataUrl = null;
       window[id].fromInlineScriptBase64DataUrl = null;
+      window[id].fromInlineScriptBlobUrl = null;
 
       var script = document.createElement("script");
       script.textContent = generateInlineScriptCode("fromInlineScript");
@@ -262,7 +262,6 @@
       setTimeout(function(){
         script.parentElement.removeChild( script );
       });
-
 
       var inlineScriptUtf8DataUrl = "data:text/javascript;charset=utf-8," + _this.encodeURIComponent( generateInlineScriptCode("fromInlineScriptUtf8DataUrl") );
       var inlineScriptBase64DataUrl = "data:text/javascript;base64," + _this.btoa( generateInlineScriptCode("fromInlineScriptBase64DataUrl") );
@@ -277,190 +276,85 @@
         console.warn(e);
       });
 
+      try{
+        var inlineScriptBlobUrl = URL.createObjectURL( new Blob([ generateInlineScriptCode("fromInlineScriptBlobUrl") ],{type:"text/javascript"}) );
+        _this.runScript( inlineScriptBlobUrl ).then(function(){
+          URL.revokeObjectURL( inlineScriptBlobUrl );
+        }).catch(function(e){
+          URL.revokeObjectURL( inlineScriptBlobUrl );
+          console.warn(e);
+        })
+      }catch(e){
+        try{
+          URL.revokeObjectURL( inlineScriptBlobUrl );
+        }catch(e){
+          console.warn(e);
+        }
+        console.warn(e);
+      }
+
+
+
+
+      window[id].fromWorkerUtf8DataUrl = null;
+      window[id].fromWorkerBase64DataUrl = null;
+      window[id].fromWorkerBlobUrl = null;
+
+      if( typeof Worker === "function" ){
+        
+        function generateWorkerCode(key){
+          return "postMessage( { key : '" + key  + "', value : ( " + _this.generateStackTrace + " )() } )";
+        }
+
+        var workerUtf8DataUrl = "data:text/javascript;charset=utf-8," + _this.encodeURIComponent( generateWorkerCode("fromInlineScriptUtf8DataUrl") );
+        var workerBase64DataUrl = "data:text/javascript;base64," + _this.btoa( generateWorkerCode("fromInlineScriptBase64DataUrl") );
+
+        function onmessage(e){
+          e.target.terminate();
+          var key = e.data.key;
+          var val = e.data.value;
+          window[id][key] = val;
+        }
+
+        function onexception(e){
+          e.target.terminate();
+          console.warn(e);
+        }
+
+        var workerA = new Worker( workerUtf8DataUrl );
+        var workerB = new Worker( workerBase64DataUrl );
+
+        workerA.onmessage = onmessage;
+        workerA.onerror = onexception;
+        workerA.onmessageerror = onexception;
+
+        workerB.onmessage = onmessage;
+        workerB.onerror = onexception;
+        workerB.onmessageerror = onexception;
+
+        try{
+          var workerBlobUrl = URL.createObjectURL( new Blob([ generateWorkerCode("fromWorkerBlobUrl") ],{type:"text/javascript"}) );
+          var workerC = new Worker( workerBlobUrl );
+          workerC.onmessage = onmessage;
+          workerC.onerror = onexception;
+          workerC.onmessageerror = onexception;
+        }catch(e){
+          try{
+            URL.revokeObjectURL( workerBlobUrl );
+          }catch(e){
+            console.warn(e);
+          }
+          console.warn(e);
+        }
+
+      }
+
+
+
+
       setTimeout(function(){
         res( window[id] );
       },1000);
-
-    //   var stacks = {};
-    //   var counter = 0;
-
-    //   _this.when( function(){
-    //     return counter === 14
-    //   }).then( function(){
-    //     res( stacks )
-    //   });
-
-    //   stacks["from a normal script"] = _this.generateStackTrace();
-    //   counter ++;
-
-    //   typeof Promise === "function" ? new Promise(function(res,rej){
-    //     stacks["from inside a promise callback"] = _this.generateStackTrace();
-    //     counter ++;
-    //   }) : function(){
-    //     stacks["from inside a promise callback"] = null;
-    //     counter ++;
-    //   }();
-        
-    //   if( typeof eval === "function" ){
-    //     stacks["from inside eval"] = eval("_this.generateStackTrace()");
-    //     stacks["from inside nested eval"] = eval("eval('_this.generateStackTrace()')");
-    //     stacks["from inside double nested eval"] = eval("eval('eval(\"_this.generateStackTrace()\")')");
-    //   }else{
-    //     stacks["from inside eval"] = null;
-    //     stacks["from inside nested eval"] = null;
-    //     stacks["from inside double nested eval"] = null;
-    //   }
-
-    //   counter += 3;
-
-    //   if( typeof Function === "function" ){
-    //     stacks["from a Function constructor"] = new Function("return (" + _this.generateStackTrace + ")()" )();
-    //   }else{
-    //     try{
-    //       stacks["from a Function constructor"] = (function(){}).constructor("return (" + _this.generateStackTrace + ")()")();
-    //     }catch(e){
-    //       console.warn(e);
-    //       stacks["from a Function constructor"] = null;
-    //     }
-    //   }
-
-    //   counter ++;
-
-    //   _this.evalFromJSUrl( "(" + _this.generateStackTrace + ")()" ).then(function(result){
-    //     stacks["from inside a javascript: url"] = result;
-    //     counter ++;
-    //   });
-
-    //   var script = document.createElement("script");
-    //   var id = _this.randomId();
-    //   script.textContent = "window['" + id + "'] = (" + _this.generateStackTrace + ")()";
-    //   document.documentElement.appendChild( script );
-
-    //   _this.when(function(){ return id in window }).then(function(){
-    //     // script.remove();
-    //     script.parentElement.removeChild( script );
-    //     stacks["from an inline script"] = window[id];
-    //     delete window[id];
-    //     counter++;
-
-    //     id = _this.randomId();
-    //     var scriptCode = "window['" + id + "'] = ( " + _this.generateStackTrace + " )()";
-
-    //     var utf8DataUrl = "data:text/javascript;utf-8," + _this.encodeURIComponent( scriptCode );
-    //     var base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
-    //     var blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
-
-    //     var utf8DataUrlHandled = false;
-    //     var base64DataUrlHandled = false;
-    //     var blobUrlHandled = false;
-
-    //     _this.runScript( utf8DataUrl ).then(function(){
-    //       stacks["from a utf-8 dataurl script"] = window[id];
-    //       delete window[id];
-    //       counter++;
-    //       utf8DataUrlHandled = true;
-    //     }).catch(function(e){
-    //       console.warn(e);
-    //       stacks["from a utf-8 dataurl script"] = null;
-    //       counter++;
-    //       utf8DataUrlHandled = true;
-    //     });
-
-    //     _this.when(function(){return utf8DataUrlHandled}).then(function(){
-    //       _this.runScript( base64DataUrl ).then(function(){
-    //         stacks["from a base-64 dataurl script"] = window[id];
-    //         delete window[id];
-    //         counter++;
-    //         base64DataUrlHandled = true;
-    //       }).catch(function(e){
-    //         console.warn(e);
-    //         stacks["from a base-64 dataurl script"] = null;
-    //         counter++;
-    //         base64DataUrlHandled = true;
-    //       });
-    //     });
-
-    //     _this.when(function(){return base64DataUrlHandled}).then(function(){
-    //       _this.runScript( blobUrl ).then(function(){
-    //         stacks["from a bloburl script"] = window[id];
-    //         delete window[id];
-    //         counter++;
-    //         URL.revokeObjectURL( blobUrl );
-    //         blobUrlHandled = true;
-    //       }).catch(function(e){
-    //         console.warn(e);
-    //         stacks["from a bloburl script"] = null;
-    //         counter++;
-    //         URL.revokeObjectURL( blobUrl );
-    //         blobUrlHandled = true;
-    //       });
-    //     });
-
-    //     _this.when(function(){return blobUrlHandled}).then(function(){
-
-    //       if( typeof Worker !== "function" ){
-    //         console.warn("environment does not support Worker constructor");
-    //         stacks["from a utf-8 dataurl worker"] = null;
-    //         stacks["from a base-64 dataurl worker"] = null;
-    //         stacks["from a bloburl worker"] = null;
-    //         counter += 3;
-    //         return;
-    //       }
-
-    //       scriptCode = "postMessage( (" + _this.generateStackTrace + ")() )";
-    //       utf8DataUrl = "data:text/javascript;utf-8," + _this.encodeURIComponent( scriptCode );
-    //       base64DataUrl = "data:text/javascript;base64," + _this.btoa( scriptCode );
-    //       blobUrl = URL.createObjectURL( new Blob([scriptCode],{type:"text/javascript"}));
-
-    //       var worker;
-
-    //       try{
-    //         worker = new Worker( utf8DataUrl );
-    //       }catch(e){
-    //         console.warn(e);
-    //         worker = {terminate:function(){}};
-    //         setTimeout( function(){ worker.onmessage({data:null}) } );
-    //       }
-
-    //       worker.onmessage = function(e){
-    //         stacks["from a utf-8 dataurl worker"] = e.data;
-    //         worker.terminate();
-    //         counter++;
-
-    //         try{
-    //           worker = new Worker( base64DataUrl );
-    //         }catch(e){
-    //           console.warn(e);
-    //           worker = {terminate:function(){}};
-    //           setTimeout( function(){ worker.onmessage({data:null}) } );
-    //         }
-
-    //         worker.onmessage = function(e){
-    //           stacks["from a base-64 dataurl worker"] = e.data;
-    //           worker.terminate();
-    //           counter++;
-
-    //           try{
-    //             worker = new Worker( blobUrl );
-    //           }catch(e){
-    //             console.warn(e);
-    //             worker = {terminate:function(){}};
-    //             setTimeout( function(){ worker.onmessage({data:null}) } );
-    //           }
-              
-    //           worker.onmessage = function(e){
-    //             stacks["from a bloburl worker"] = e.data;
-    //             worker.terminate();
-    //             counter++;
-
-    //             URL.revokeObjectURL( blobUrl );
-    //           }
-    //         };
-    //       };
-  
-    //     });
-
-    //   });
 
     });
   };

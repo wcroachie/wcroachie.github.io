@@ -106,7 +106,9 @@ esx.generateStackTrace = function(){
     if( filename.indexOf("@") !== -1 ){
       var beforeFirstAt = this.splitAtCh(filename,"@")[0];
       filename = this.slice( filename, beforeFirstAt.length + 1 );
-    }else{
+    }
+    
+    if( filename.indexOf(" ") > -1 ){
       filename = this.pop( this.splitAtCh( filename, " ", true ) );
     }
     // if( filename.indexOf("[native code]") === -1 ){
