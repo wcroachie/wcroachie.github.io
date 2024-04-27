@@ -89,9 +89,10 @@ void function(){
     function pointerDownHandler(e){
       e.preventDefault();
       elem.setAttribute("data-dragging","");
-      console.warn( e.clientX, e.clientY );
-      offsetX = e.clientX - _this.getClientRect(elem).x;
-      offsetY = e.clientY - _this.getClientRect(elem).y;
+      offsetX = (e.clientX || e.touches[0].clientX ) - _this.getClientRect(elem).x;
+      offsetY = (e.clientY || e.touches[0].clientY ) - _this.getClientRect(elem).y;
+      console.warn( _this.getClientRect(elem).x );
+      console.warn( offsetX );
       _this.removeEventListener( elem, "pointerdown", pointerDownHandler );
       _this.removeEventListener( elem, "mousedown", pointerDownHandler );
       _this.removeEventListener( elem, "touchstart", pointerDownHandler );
@@ -120,8 +121,6 @@ void function(){
     function pointerMoveHandler(e){
       e.preventDefault();
       if( elem.hasAttribute("data-dragging") ){
-        console.warn( e.clientX, e.clientY );
-        e.touches && console.warn( e.touches[0].clientX, e.touches[0].clientY );
         x = (e.clientX || e.touches[0].clientX) - offsetX;
         y = (e.clientY || e.touches[0].clientY) - offsetY;
       }
