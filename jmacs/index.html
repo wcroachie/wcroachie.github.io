@@ -2,6 +2,7 @@
 <html>
   <head>
 
+    
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0">
@@ -9,45 +10,66 @@
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
+    
+    
 
-    <!-- run AFTER metas but before any links or style -->
+    <!-- run after nocache.js -->
     <script>
-    /*
-    * try to stop caching by changing the
-    * query params every refresh so it
-    * always loads new (good for debugging)
-    * 
-    * user "var" and no arrow functions so this can be used wherever
-    * 
-    */
-    !function(){
-      try{
-        var isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
-        var navEntries = performance.getEntriesByType("navigation");
-        if(navEntries){
-          if(navEntries[0]){
-            var p = navEntries[0].type;
-            if( p==="reload" || p==="back_forward" || p==="prerender" ){
-              isReloaded = true;
+
+      /*
+      * try to stop caching by changing the
+      * query params every refresh so it
+      * always loads new (for debugging)
+      */
+      !function(){
+
+        "use strict";
+
+        try{
+          var isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
+          var navEntries = performance.getEntriesByType("navigation");
+          if(navEntries){
+            if(navEntries[0]){
+              var p = navEntries[0].type;
+              if( p==="reload" || p==="back_forward" || p==="prerender" ){
+                isReloaded = true;
+              }
             }
           }
+          if( !location.search || isReloaded ){ 
+            var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
+            var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
+            location.search = a + "=" + b;
+          }
+        }catch(e){
+          console.warn(e);
         }
-        if( !location.search || isReloaded ){ 
-          var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
-          var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
-          location.search = a + "=" + b;
-        }
-      }catch(e){
-        console.warn(e);
-      }
-    }();
+        
+      }();
+
     </script>
 
-    
+    <!-- extra styles for ie -->
+    <script>
+      !function(){
+        "use strict";
+        try{
+          /* RESIZE FIX FOR IE */
+          /* make site appear larger on ie */
+          if( document.documentMode ){
+            var nativeDPI = screen.systemXDPI;
+            var visualDPI = screen.logicalXDPI;
+            var ratio = 100 * (visualDPI/nativeDPI);
+            document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
+          }
+        }catch(e){
+          console.warn(e);
+        }
+      }();
+    </script>
 
     <style>
 
-     
       *{
 
         image-rendering: pixelated;
@@ -119,92 +141,8 @@
 
     </style>
 
-    <!-- extra styles for ie, add after first script tag -->
-    <script>
-    !function(){
-      try{
-        /* RESIZE FIX FOR IE */
-        /* make site appear larger on ie */
-        if( document.documentMode ){
-          var nativeDPI = screen.systemXDPI;
-          var visualDPI = screen.logicalXDPI;
-          var ratio = 100 * (visualDPI/nativeDPI);
-          document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
-        }
-      }catch(e){
-        console.warn(e);
-      }
-    }();
-    </script>
-
-    <script>
-    /* resist caching of resources by adding random params to their urls */
-    /* for dev mode only!!! */
-    !function(){
-      
-      try{
-
-        if( (document.createElement("template") + "") === "[object HTMLTemplateElement]" ){
-
-          function addRandomParam( url ){
-            url += "";
-            if( url.indexOf("?") === -1 ){
-              url += "?"
-            }else{
-              url += "&"
-            }
-            var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
-            var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
-            url += a + "=" + b;
-            return url;
-          }
-
-          /* interrupt parser */
-          document.writeln("<"+"template>");
-
-          setTimeout(function(){
-            var template = document.querySelector("template");
-            
-            var scripts = template.content.querySelectorAll("script[src]");
-            for( var i=0; i<scripts.length; i++ ){
-              var script = scripts[i];
-              script.setAttribute("src", addRandomParam(script.getAttribute("src") ) );
-            }
-
-            var links = template.content.querySelectorAll("link[href][rel='stylesheet']");
-            for( var i=0; i<links.length; i++ ){
-              var link = links[i];
-              link.setAttribute("href", addRandomParam(link.getAttribute("href") ) );
-            }
-
-            var elemsForHead = template.content.querySelectorAll("link");
-            var elemsForBody = template.content.querySelectorAll(":not(link)");
-
-            template.parentElement.removeChild( template );
-
-            document.body.setAttribute("ontouchstart","");
-            document.body.setAttribute("onclick","");
-            document.body.setAttribute("ondblclick","");
-            
-            for( var i=0; i<elemsForHead.length; i++ ){
-              document.head.appendChild( elemsForHead[i] );
-            }
-            for( var i=0; i<elemsForBody.length; i++ ){
-              document.body.appendChild( elemsForBody[i] );
-            }
-
-          });
-
-        }
-
-      }catch(e){
-        
-        console.warn(e);
-
-      }
-
-    }();
-    </script>
+    <!-- run nocache.js right before the first element that is sourced or linked externally -->
+    <script src="nocache.js"></script>
 
     <link rel="stylesheet" href="style.css">
 
@@ -212,27 +150,33 @@
 
   <!-- adding these inline event handlers fixes a bug in safari iOS -->
   <body ontouchstart onclick ondblclick>
-    <script src="esx/arr.js"></script>
-    <script src="esx/btoa.js"></script>
-    <script src="esx/err.js"></script>
-    <script src="esx/esc.js"></script>
-    <script src="esx/misc.js"></script>
-    <script src="esx/obj.js"></script>
-    <script src="esx/promise.js"></script>
-    <script src="esx/str.js"></script>
-    <script src="esx/url.js"></script>
-    <script src="esx/utf8enc.js"></script>
 
+    <script src="esx/core/arr.js"></script>
+    <script src="esx/core/btoa.js"></script>
+    <script src="esx/core/err.js"></script>
+    <script src="esx/core/esc.js"></script>
+    <script src="esx/core/obj.js"></script>
+    <script src="esx/core/str.js"></script>
+    <script src="esx/core/utf8.js"></script>
+
+    <script src="esx/trackers/bloburl.js"></script>
+    <script src="esx/trackers/listener.js"></script>
+
+    <script src="esx/errpars.js"></script>
+    <script src="esx/misc.js"></script>
+    <script src="esx/runjs.js"></script>
+    <script src="esx/url.js"></script>
+    
     <script src="esx/dom/console.js"></script>
     <script src="esx/dom/drag.js"></script>
     <script src="esx/dom/rect.js"></script>
     <script src="esx/dom/upload.js"></script>
-
+    
     <script src="main.js"></script>
     
     <script>
-      console.log("dom parsed");
+      console.log("dom parsed");/* kdsjhskjfdh */
     </script>
-
+    
   </body>
 </html>

@@ -1,61 +1,45 @@
-!function(){
+if( typeof esx === "undefined" ){
+  esx = {};
+}
 
-  if( typeof esx === "undefined" ){
-    esx = {};
-  }
+void function(){
+  "use strict";
 
-  esx.runScript = function( src ){
-    
-    return new this.PromiseLike(function(res,rej){
+  esx.PromiseLike = function( callback ){
 
-      if( typeof document !== "object" ){
-        try{
-          importScripts( url );
-          res();
-        }catch(e){
-          rej(e);
-        }
-        return;
+    var resolveCallback, rejectCallback;
+
+    this["then"] = function( cb ){
+      resolveCallback = cb;
+      return this;
+    };
+
+    this["catch"] = function( cb ){
+      rejectCallback = cb;
+      return this;
+    };
+
+    var errored = false;
+
+    function resolve( val ){
+      if( !errored ){
+        typeof resolveCallback === "function" && resolveCallback( val );
       }
+    }
 
-      var script = document.createElement("script");
-      var done = false;
-
-      function remove(){
-        script.onload = null;
-        script.onerror = null;
-        script.parentElement.removeChild( script );
-        done = true;
+    function reject( val ){
+      if( !errored ){
+        errored = true;
+        typeof rejectCallback === "function" ? rejectCallback( val ) : console.error("unhandled promiselike rejection: ",val);
       }
-    
-      script.onload = function(){
-        console.log("successfully loaded script from "+src+".");
-        remove();
-        res();
-      };
-    
-      script.onerror = function(){
-        remove();
-        rej( "error loading script from "+src+"." );
-      };
-    
-      /* timeout after 20 seconds */
-      setTimeout( function(){
-        if( !done ){
-          remove();
-          rej( "timeout for loading resource from "+src+"." );
-        }
-      }, 20000 );
-    
-      script.src = src;
-    
-      /* needs to be documentElement */
-      document.documentElement.appendChild(script);
+    }
 
+    /* needs to be at least 1 event cycle to run then and catch, otherwise throws an error! */
+    setTimeout(function(){
+      callback( resolve, reject );
     });
 
   };
-
 
 
   esx.ms2hhmmssmmm = function( ms ){
@@ -184,204 +168,6 @@
     });
   };
 
-
-
-
-  esx.generateStacks = function(){
-
-    var _this = this;
-
-    return new this.PromiseLike(function(res,rej){
-
-      var id = _this.randomId();
-      window[id] = {};
-
-      /* regular */
-      window[id].fromSourceScript = _this.generateStackTrace();
-
-      var evalCode = 
-        "try{"
-      +   "null.$ = 2;"
-      +   "(function(){})() + \"\""
-      + "}catch(e){"
-      +   "if( typeof e === \"undefined\" ){"
-      +     "\"undefined\""
-      +   "}else{"
-      +     "if( typeof e === \"object\" && e !== null && \"stack\" in e ){"
-      +       "e.stack + \"\""
-      +     "}else{"
-      +       "e + \"\""
-      +     "}"
-      +   "}"
-      + "}";
-
-      /* using eval */
-      window[id].fromEval = null;
-      window[id].fromClosuredEval = null;
-      window[id].fromClosuredNestedEval = null;
-      window[id].fromClosuredDoubleNestedEval = null;
-      
-      if( typeof eval === "function" ){
-        window[id].fromEval = eval( evalCode );
-        window[id].fromClosuredEval = eval("(" + _this.generateStackTrace + ")()");
-        window[id].fromClosuredNestedEval = eval( 'eval("(" + _this.generateStackTrace + ")()")' );
-        window[id].fromClosuredDoubleNestedEval = eval("eval( 'eval(\"(\" + _this.generateStackTrace + \")()\")' )");
-      }
-
-      /* function constructor stuff */
-      window[id].fromFunctionConstructor = null;
-      window[id].fromGottenFunctionConstructor = null;
-
-      if( typeof Function === "function" ){
-        window[id].fromFunctionConstructor = new Function( "return (" + _this.generateStackTrace + ")()" )();
-      }
-      try{
-        window[id].fromGottenFunctionConstructor = (function(){}).constructor("return (" + _this.generateStackTrace + ")()")()
-      }catch(e){
-        console.warn(e);
-      }
-
-      /* from a promise (async) */
-      window[id].fromPromiseCallback = null;
-      typeof Promise === "function" && new Promise(function(_res,_rej){
-        window[id].fromPromiseCallback = _this.generateStackTrace();
-        // res( window[id] );
-      }).catch(function(e){
-        console.warn(e);
-      });
-
-
-      /* from js url (async) */
-      window[id].fromJsUrl = null;
-      _this.evalFromJSUrl( "(" + _this.generateStackTrace + ")()" ).then(function(result){
-        window[id].fromJsUrl = result;
-      }).catch(function(e){
-        console.warn(e);
-      });
-
-      function generateInlineScriptCode(key){
-        return "window['" + id + "']['" + key + "'] = ( " + _this.generateStackTrace + " )()";
-      }
-
-      function generateWorkerCode(key){
-        return "postMessage( { key : '" + key  + "', value : ( " + _this.generateStackTrace + " )() } )";
-      }
-
-      window[id].fromInlineScript = null;
-      window[id].fromInlineScriptUtf8DataUrl = null;
-      window[id].fromInlineScriptBase64DataUrl = null;
-      window[id].fromInlineScriptBlobUrl = null;
-
-      var script = document.createElement("script");
-      script.textContent = generateInlineScriptCode("fromInlineScript");
-      document.documentElement.appendChild( script );
-
-      setTimeout(function(){
-        script.parentElement.removeChild( script );
-      });
-
-      var inlineScriptUtf8DataUrl = "data:text/javascript;charset=utf-8," + _this.encodeURIComponent( generateInlineScriptCode("fromInlineScriptUtf8DataUrl") );
-      var inlineScriptBase64DataUrl = "data:text/javascript;base64," + _this.btoa( generateInlineScriptCode("fromInlineScriptBase64DataUrl") );
-
-      _this.runScript( inlineScriptUtf8DataUrl ).then(function(){
-      }).catch(function(e){
-        console.warn(e);
-      });
-
-      _this.runScript( inlineScriptBase64DataUrl ).then(function(){
-      }).catch(function(e){
-        console.warn(e);
-      });
-
-      try{
-        var inlineScriptBlobUrl = URL.createObjectURL( new Blob([ generateInlineScriptCode("fromInlineScriptBlobUrl") ],{type:"text/javascript"}) );
-        _this.runScript( inlineScriptBlobUrl ).then(function(){
-          URL.revokeObjectURL( inlineScriptBlobUrl );
-        }).catch(function(e){
-          URL.revokeObjectURL( inlineScriptBlobUrl );
-          console.warn(e);
-        })
-      }catch(e){
-        try{
-          URL.revokeObjectURL( inlineScriptBlobUrl );
-        }catch(e){
-          console.warn(e);
-        }
-        console.warn(e);
-      }
-
-
-
-
-      window[id].fromWorkerUtf8DataUrl = null;
-      window[id].fromWorkerBase64DataUrl = null;
-      window[id].fromWorkerBlobUrl = null;
-
-      if( typeof Worker === "function" ){
-        
-        function generateWorkerCode(key){
-          return "postMessage( { key : '" + key  + "', value : ( " + _this.generateStackTrace + " )() } )";
-        }
-
-        var workerUtf8DataUrl = "data:text/javascript;charset=utf-8," + _this.encodeURIComponent( generateWorkerCode("fromInlineScriptUtf8DataUrl") );
-        var workerBase64DataUrl = "data:text/javascript;base64," + _this.btoa( generateWorkerCode("fromInlineScriptBase64DataUrl") );
-
-        function onmessage(e){
-          e.target.terminate();
-          var key = e.data.key;
-          var val = e.data.value;
-          window[id][key] = val;
-        }
-
-        function onexception(e){
-          e.target.terminate();
-          console.warn(e);
-        }
-
-        try{
-          var workerA = new Worker( workerUtf8DataUrl );
-          workerA.onmessage = onmessage;
-          workerA.onerror = onexception;
-          workerA.onmessageerror = onexception;
-        }catch(e){
-          console.warn(e);
-        }
-
-        try{
-          var workerB = new Worker( workerBase64DataUrl );
-          workerB.onmessage = onmessage;
-          workerB.onerror = onexception;
-          workerB.onmessageerror = onexception;
-        }catch(e){
-          console.warn(e);
-        }
-
-        try{
-          var workerBlobUrl = URL.createObjectURL( new Blob([ generateWorkerCode("fromWorkerBlobUrl") ],{type:"text/javascript"}) );
-          var workerC = new Worker( workerBlobUrl );
-          workerC.onmessage = onmessage;
-          workerC.onerror = onexception;
-          workerC.onmessageerror = onexception;
-        }catch(e){
-          try{
-            URL.revokeObjectURL( workerBlobUrl );
-          }catch(e){
-            console.warn(e);
-          }
-          console.warn(e);
-        }
-
-      }
-
-
-
-
-      setTimeout(function(){
-        res( window[id] );
-      },1000);
-
-    });
-  };
 
 
 

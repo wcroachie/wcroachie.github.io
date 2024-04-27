@@ -10,37 +10,6 @@
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
 
-    <!-- run AFTER metas but before any links or style -->
-    <script>
-    /*
-    * try to stop caching by changing the
-    * query params every refresh so it
-    * always loads new (good for debugging)
-    * 
-    * user "var" and no arrow functions so this can be used wherever
-    * 
-    */
-    !function(){
-      try{
-        var isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
-        var navEntries = performance.getEntriesByType("navigation");
-        if(navEntries){
-          if(navEntries[0]){
-            var p = navEntries[0].type;
-            if( p==="reload" || p==="back_forward" || p==="prerender" ){
-              isReloaded = true;
-            }
-          }
-        }
-        if( !location.search || isReloaded ){ 
-          location.search = Math.random().toString(36).slice(2) + "=" + Math.random().toString(36).slice(2);
-        }
-      }catch(e){
-        console.warn(e);
-      }
-    }();
-    </script>
-
     <style>
 
      
@@ -170,25 +139,35 @@
    </head>
    <!-- adding these inline event handlers fixes a bug in safari iOS -->
     <body ontouchstart onclick ondblclick>
+
       <form action="javascript:;">
         <input type="text">
         <button></button>
       </form>
+
       <pre>
       </pre>
+
       <script>
 
-        addEventListener("message",function(e){
-          document.querySelector("pre").innerHTML += e.data;
-        });
+        !function(){
 
-        document.querySelector("form").addEventListener("submit",function(){
-          var value = document.querySelector("input").value;
-          top.postMessage( value , "*" );
-        });
+          "use strict";
+          
+          addEventListener("message",function(e){
+            document.querySelector("pre").innerHTML += e.data;
+          });
 
-        top.postMessage( null, "*" );
-        
+          document.querySelector("form").addEventListener("submit",function(){
+            var value = document.querySelector("input").value;
+            top.postMessage( value , "*" );
+          });
+
+          top.postMessage( null, "*" );
+          
+        }();
+
       </script>
+
    </body>
  </html>

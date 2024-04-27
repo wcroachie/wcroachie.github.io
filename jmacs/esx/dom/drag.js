@@ -1,15 +1,16 @@
-!function(){
+if( typeof esx === "undefined" ){
+  esx = {};
+}
 
-  if( typeof esx === "undefined" ){
-    esx = {};
-  }
+void function(){
 
-  var testingDiv = document.body.appendChild( document.createElement("div") );
+  "use strict";
+
+  var testingDiv = document.createElement("div");
 
   var mouseEventsSuported = "onmousedown" in testingDiv;
   var touchEventsSupported = "ontouchdown" in testingDiv;
   var pointerEventsSupported = "onpointerdown" in testingDiv;
-  
 
   /**
    * use data-dragging selector to override iframe
@@ -22,7 +23,6 @@
     + "[data-dragging] object,"
     + "[data-dragging] embed{"
     +   "pointer-events:none;"
-    +   "opacity:0.5;"
     + "}"
   ;
 
@@ -84,22 +84,22 @@
 
       if( pointerEventsSupported ){
 
-        elem.removeEventListener("pointerdown",pointerDownHandler);
-        addEventListener("pointermove",pointerMoveHandler);
-        addEventListener("pointerup",pointerUpHandler);
+        _this.removeEventListener(elem,"pointerdown",pointerDownHandler);
+        _this.addEventListener(window,"pointermove",pointerMoveHandler);
+        _this.addEventListener(window,"pointerup",pointerUpHandler);
 
       }else{
         
         if( mouseEventsSuported ){
-          elem.removeEventListener("mousedown",pointerDownHandler);
-          addEventListener("mousemove",pointerMoveHandler);
-          addEventListener("mouseup",pointerUpHandler);
+          _this.removeEventListener(elem,"mousedown",pointerDownHandler);
+          _this.addEventListener(window,"mousemove",pointerMoveHandler);
+          _this.addEventListener(window,"mouseup",pointerUpHandler);
         }
 
         if( touchEventsSupported ){
-          elem.removeEventListener("touchstart",pointerDownHandler);
-          addEventListener("touchmove",pointerMoveHandler);
-          addEventListener("touchend",pointerUpHandler);
+          _this.removeEventListener(elem,"touchstart",pointerDownHandler);
+          _this.addEventListener(window,"touchmove",pointerMoveHandler);
+          _this.addEventListener(window,"touchend",pointerUpHandler);
         }
 
       }
@@ -124,22 +124,22 @@
       
       if( pointerEventsSupported ){
 
-        elem.addEventListener("pointerdown",pointerDownHandler);
-        removeEventListener("pointermove",pointerMoveHandler);
-        removeEventListener("pointerup",pointerUpHandler);
+        _this.addEventListener(elem,"pointerdown",pointerDownHandler);
+        _this.removeEventListener(window,"pointermove",pointerMoveHandler);
+        _this.removeEventListener(window,"pointerup",pointerUpHandler);
 
       }else{
         
         if( mouseEventsSuported ){
-          elem.addEventListener("mousedown",pointerDownHandler);
-          removeEventListener("mousemove",pointerMoveHandler);
-          removeEventListener("mouseup",pointerUpHandler);
+          _this.addEventListener(elem,"mousedown",pointerDownHandler);
+          _this.removeEventListener(window,"mousemove",pointerMoveHandler);
+          _this.removeEventListener(window,"mouseup",pointerUpHandler);
         }
 
         if( touchEventsSupported ){
-          elem.addEventListener("touchstart",pointerDownHandler);
-          removeEventListener("touchmove",pointerMoveHandler);
-          removeEventListener("touchend",pointerUpHandler);
+          _this.addEventListener(elem,"touchstart",pointerDownHandler);
+          _this.removeEventListener(window,"touchmove",pointerMoveHandler);
+          _this.removeEventListener(window,"touchend",pointerUpHandler);
         }
 
       }
@@ -149,10 +149,10 @@
     }
 
     if( pointerEventsSupported ){
-      elem.addEventListener("pointerdown",pointerDownHandler);
+      _this.addEventListener(elem,"pointerdown",pointerDownHandler);
     }else{
-      mouseEventsSuported && elem.addEventListener("mousedown",pointerDownHandler);
-      touchEventsSupported && elem.addEventListener("touchstart",pointerDownHandler);
+      mouseEventsSuported && _this.addEventListener(elem,"mousedown",pointerDownHandler);
+      touchEventsSupported && _this.addEventListener(elem,"touchstart",pointerDownHandler);
     }
     
   };

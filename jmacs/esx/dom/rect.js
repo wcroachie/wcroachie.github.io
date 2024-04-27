@@ -1,9 +1,10 @@
-!function(){
+if( typeof esx === "undefined" ){
+  esx = {};
+}
 
-  if( typeof esx === "undefined" ){
-    esx = {};
-  }
+void function(){
 
+  "use strict";
 
   /**
    * tries to get element's bounding client rect.

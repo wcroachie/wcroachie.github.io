@@ -1,8 +1,10 @@
-!function(){
+if( typeof esx === "undefined" ){
+  esx = {};
+}
 
-  if( typeof esx === "undefined" ){
-    esx = {};
-  }
+void function(){
+
+  "use strict";
 
   esx.params2obj = function( paramStr ){
     paramStr = paramStr + "";
@@ -10,11 +12,11 @@
       paramStr = this.slice( paramStr, 1 );
     }
     paramStr = this.replaceAll( paramStr, "+", "%20" );
-    var pieces = this.splitAtCh( paramStr, "&" );
+    var pieces = this.split( paramStr, "&" );
     var obj = {};
     for( var i=0; i<pieces.length; i++ ){
       var piece = pieces[i];
-      var key = this.splitAtCh( piece, "=" )[0];
+      var key = this.split( piece, "=" )[0];
       var value = this.slice( piece, key.length + 1);
       obj[key] = this.decodeURIComponent( value );
     }
@@ -39,7 +41,7 @@
     if( url.indexOf(":") === -1 ){
       throw "invalid url";
     }
-    var scheme = this.splitAtCh( url, ":" )[0];
+    var scheme = this.split( url, ":" )[0];
     if( scheme === "" ){
       throw "invalid url";
     }
@@ -65,7 +67,7 @@
   esx.getUrlHash = function( url ){
     url = url + "";
     if( url.indexOf("#") > -1 ){
-      var beforeHash = this.splitAtCh(url,"#")[0];
+      var beforeHash = this.split(url,"#")[0];
       return this.slice( url, beforeHash.length );
     }else{
       return null;
@@ -75,10 +77,10 @@
   esx.getUrlSearch = function( url ){
     url = url + "";
     if( url.indexOf("#") > -1 ){
-      url = this.splitAtCh(url,"#")[0];
+      url = this.split(url,"#")[0];
     }
     if( url.indexOf("?") > -1 ){
-      var beforeQuestionMark = this.splitAtCh( url, "?" )[0];
+      var beforeQuestionMark = this.split( url, "?" )[0];
       return this.slice( url, beforeQuestionMark.length );
     }else{
       return null;
@@ -94,7 +96,7 @@
     }
     url = this.slice( url, 2 );
     if( url.indexOf("/") > -1 ){
-      url = this.splitAtCh( url, "/" )[0];
+      url = this.split( url, "/" )[0];
     }
     return url;
   };
@@ -116,7 +118,7 @@
     }
     url = this.slice( url, 2 );
     if( url.indexOf("/") > -1 ){
-      var beforeFirstSlash = this.splitAtCh( url, "/" )[0];
+      var beforeFirstSlash = this.split( url, "/" )[0];
       url = this.slice( url, beforeFirstSlash.length );
       return url;
     }else{
@@ -125,18 +127,21 @@
   };
 
   esx.getPathFilename = function( path ){
-    var betweenSlashes = this.splitAtCh( path, "/" );
+    var betweenSlashes = this.split( path, "/" );
     return this.pop( betweenSlashes );
   };
 
   esx.getPathParentpath = function( path ){
+    if( path[path.length - 1] === "/" ){
+      return path;
+    }
     var filename = this.getPathFilename( path );
     var beforeFilename = this.slice( path, 0, -filename.length );
     return beforeFilename;
   };
 
   esx.getFilenameExtension = function( filename ){
-    var betweenPeriods = this.splitAtCh( filename, "." );
+    var betweenPeriods = this.split( filename, "." );
     return this.pop( betweenPeriods );
   };
 

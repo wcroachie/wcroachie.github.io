@@ -1,9 +1,11 @@
-!function(){
+if( typeof esx === "undefined" ){
+  esx = {};
+}
 
-  if( typeof esx === "undefined" ){
-    esx = {};
-  }
+void function(){
 
+  "use strict";
+  
   var now = Date.now();
   for( ;; ){
     if( Date.now() > now ){
@@ -15,7 +17,7 @@
   var wrapper = document.documentElement.appendChild( document.createElement("div") );
   wrapper.id = wrapperId;
   var iframe = wrapper.appendChild( document.createElement("iframe") );
-  var style = document.head.appendChild( document.createElement("style") );
+  var style = document.documentElement.appendChild( document.createElement("style") );
   style.textContent =
     ""
     + "#" + wrapperId + "{"
@@ -27,6 +29,7 @@
     +   "height:150px;"
     +   "box-sizing:border-box;"
     +   "border:1px solid blue;"  
+    +   "background-color:white;"
     + "}"
     + ""
     + "#" + wrapperId + " > iframe{"
@@ -39,11 +42,15 @@
     +   "box-sizing:border-box;"
     +   "border:1px solid red;"
     + "}"
+    + ""
+    + "#" + wrapperId + "[data-dragging]{"
+    +   "opacity:0.5;"
+    + "}"
   ;
   
   var iframeLoaded = false;
 
-  addEventListener("message",function(e){
+  esx.addEventListener(window,"message",function(e){
     if( e.source === iframe.contentWindow ){
       if( !iframeLoaded ){
         iframeLoaded = true;
@@ -78,40 +85,71 @@
     }( key );
   }
 
+  var queue = [];
+
+  var linesToTakeOff = esx.split( esx.GLOBAL_SCOPE_ERROR_STACK, "\n" ).length;
+
   function addEntry( args, className ){
     var div = document.createElement("div");
     div.classList.add( className );
-    div.textContent = ">" + esx.join( args, "\n" );
-    if( iframeLoaded ){
-      iframe.contentWindow.postMessage( div.outerHTML, "*" );
+    var stack = esx.generateStackTrace();
+    stack = esx.split( stack, "\n" );
+    var lineToGet = stack[ linesToTakeOff + 2 ] || "";
+    var line = esx.parseStackLine( lineToGet );
+    div.textContent += line.filename + ":" + line.lineno + ":" + line.colno + " > ";
+    if( args.length > 1 ){
+      for( var i=0; i<args.length; i++ ){
+        div.textContent += "\n  " + args[i];
+      }
     }else{
-      console._log("waiting...");
-      setTimeout(function(){
-        addEntry( args, className );
-      })
+      div.textContent += args[0];
     }
+    esx.push( queue, [div.outerHTML] );
   }
 
+
+  
+
   onerror = function(){
-    console.error.apply( console, arguments );
+    var message = arguments[0];
+    var source = arguments[1];
+    var lineno = arguments[2];
+    var colno = arguments[3];
+    var error = arguments[4] || {};
+    var obj = {
+      message : message,
+      source : source,
+      lineno : lineno,
+      colno : colno,
+      error : error instanceof DOMException ? esx.cloneException( error ) : esx.cloneError( error )
+    };
+    console.error( JSON.stringify(obj,null,"  ") + "\nstack:\n\n" + (obj.error || {}).stack );
   };
 
-  addEventListener("error",function(e){
-    var proto = e.__proto__;
-    var clone = {};
-    for( var key in proto ){
-      clone[key] = e[key] + "";
-    }
-    console.error( e, JSON.stringify(clone,null,"  ") );
+  esx.addEventListener( window, "error", function(e){
+    console.error(e);
   });
+
 
   wrapper.style.width = "512px";
   wrapper.style.height = "512px";
+  wrapper.style.maxWidth = "100%";
+  wrapper.style.maxHeight = "100%";
 
   setTimeout( function(){
 
     /* update the wrapper's position at 60 fps */
     esx.makeDraggable( wrapper, Math.floor(1000/60) );
+
+    /* every frame, check and empty the queue */
+    setInterval( function(){
+      if( iframeLoaded ){
+        while( queue.length ){
+          var msg = esx.shift( queue );
+          iframe.contentWindow.postMessage( msg, "*" );
+        }
+      }
+    }, Math.floor(1000/60) );
 
   }, 200 );
 

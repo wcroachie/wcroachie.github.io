@@ -1,8 +1,10 @@
-!function(){
+if( typeof esx === "undefined" ){
+  esx = {};
+}
 
-  if( typeof esx === "undefined" ){
-    esx = {};
-  }
+void function(){
+
+  "use strict";
 
   /* create an upload element to use for uploading any files for this session with the upload() method below*/
   /**
