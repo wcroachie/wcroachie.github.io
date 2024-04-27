@@ -84,99 +84,137 @@ void function(){
 
       }
 
-
     }
+
+    
 
     function pointerDownHandler(e){
-
       console.warn("pointer down handler running")
-
       e.preventDefault();
-
       elem.setAttribute("data-dragging","");
-
       offsetX = e.clientX - _this.getClientRect(elem).x;
       offsetY = e.clientY - _this.getClientRect(elem).y;
-
-      if( pointerEventsSupported ){
-
-        _this.removeEventListener(elem,"pointerdown",pointerDownHandler);
-        _this.addEventListener(window,"pointermove",pointerMoveHandler);
-        _this.addEventListener(window,"pointerup",pointerUpHandler);
-
-      }else{
-        
-        if( mouseEventsSuported ){
-          _this.removeEventListener(elem,"mousedown",pointerDownHandler);
-          _this.addEventListener(window,"mousemove",pointerMoveHandler);
-          _this.addEventListener(window,"mouseup",pointerUpHandler);
-        }
-
-        if( touchEventsSupported ){
-          _this.removeEventListener(elem,"touchstart",pointerDownHandler);
-          _this.addEventListener(window,"touchmove",pointerMoveHandler);
-          _this.addEventListener(window,"touchend",pointerUpHandler);
-        }
-
-      }
-
-      iv = setInterval( updatePosition, updateIntervalInMs );
+      _this.removeEventListener( elem, "pointerdown", pointerDownHandler );
+      _this.removeEventListener( elem, "mousedown", pointerDownHandler );
+      _this.removeEventListener( elem, "touchstart", pointerDownHandler );
+      _this.addEventListener( window, "pointerup", pointerUpHandler );
+      _this.addEventListener( window, "mouseup", pointerUpHandler );
+      _this.addEventListener( window, "touchend", pointerUpHandler );
     }
-
-    function pointerMoveHandler(e){
-
-      console.log("pointer move handler running");
-
-      e.preventDefault();
-
-      x = e.clientX - offsetX;
-      y = e.clientY - offsetY;
-
-    }
-
+    
     function pointerUpHandler(e){
-
-      console.log("pointer up handler running");
-
+      console.warn("pointer up handler running");
       e.preventDefault();
-
       elem.removeAttribute("data-dragging");
-      
-      if( pointerEventsSupported ){
+      _this.addEventListener( elem, "pointerdown", pointerDownHandler );
+      _this.addEventListener( elem, "mousedown", pointerDownHandler );
+      _this.addEventListener( elem, "touchstart", pointerDownHandler );
+      _this.removeEventListener( window, "pointerup", pointerUpHandler );
+      _this.removeEventListener( window, "mouseup", pointerUpHandler );
+      _this.removeEventListener( window, "touchend", pointerUpHandler );
+    }
 
-        _this.addEventListener(elem,"pointerdown",pointerDownHandler);
-        _this.removeEventListener(window,"pointermove",pointerMoveHandler);
-        _this.removeEventListener(window,"pointerup",pointerUpHandler);
+    _this.addEventListener( elem, "pointerdown", pointerDownHandler );
+    _this.addEventListener( elem, "mousedown", pointerDownHandler );
+    _this.addEventListener( elem, "touchstart", pointerDownHandler );
 
-      }else{
+
+    // function pointerDownHandler(e){
+
+    //   console.warn("pointer down handler running")
+
+    //   e.preventDefault();
+
+    //   elem.setAttribute("data-dragging","");
+
+    //   offsetX = e.clientX - _this.getClientRect(elem).x;
+    //   offsetY = e.clientY - _this.getClientRect(elem).y;
+
+    //   if( pointerEventsSupported ){
+
+    //     _this.removeEventListener(elem,"pointerdown",pointerDownHandler);
+    //     // _this.addEventListener(window,"pointermove",pointerMoveHandler);
+    //     _this.addEventListener(window,"pointerup",pointerUpHandler);
+
+    //   }else{
         
-        if( mouseEventsSuported ){
-          _this.addEventListener(elem,"mousedown",pointerDownHandler);
-          _this.removeEventListener(window,"mousemove",pointerMoveHandler);
-          _this.removeEventListener(window,"mouseup",pointerUpHandler);
-        }
+    //     if( mouseEventsSuported ){
+    //       _this.removeEventListener(elem,"mousedown",pointerDownHandler);
+    //       // _this.addEventListener(window,"mousemove",pointerMoveHandler);
+    //       _this.addEventListener(window,"mouseup",pointerUpHandler);
+    //     }
 
-        if( touchEventsSupported ){
-          _this.addEventListener(elem,"touchstart",pointerDownHandler);
-          _this.removeEventListener(window,"touchmove",pointerMoveHandler);
-          _this.removeEventListener(window,"touchend",pointerUpHandler);
-        }
+    //     if( touchEventsSupported ){
+    //       _this.removeEventListener(elem,"touchstart",pointerDownHandler);
+    //       // _this.addEventListener(window,"touchmove",pointerMoveHandler);
+    //       _this.addEventListener(window,"touchend",pointerUpHandler);
+    //     }
 
-      }
+    //   }
 
-      clearInterval( iv );
+    //   iv = setInterval( updatePosition, updateIntervalInMs );
+    // }
+
+
+
+    // function pointerMoveHandler(e){
+
+    //   console.log("pointer move handler running");
+
+    //   e.preventDefault();
+
+    //   x = e.clientX - offsetX;
+    //   y = e.clientY - offsetY;
+
+    // }
+
+
+
+    // function pointerUpHandler(e){
+
+    //   console.log("pointer up handler running");
+
+    //   e.preventDefault();
+
+    //   elem.removeAttribute("data-dragging");
       
-    }
+    //   if( pointerEventsSupported ){
 
-    if( pointerEventsSupported ){
-      _this.addEventListener(elem,"pointerdown",pointerDownHandler);
-      console.warn("pointer down listener added");
-    }else{
-      mouseEventsSuported && _this.addEventListener(elem,"mousedown",pointerDownHandler);
-      touchEventsSupported && _this.addEventListener(elem,"touchstart",pointerDownHandler);
-      console.warn("mouse down listener added");
-      console.warn("touch start listener added");
-    }
+    //     _this.addEventListener(elem,"pointerdown",pointerDownHandler);
+    //     _this.removeEventListener(window,"pointermove",pointerMoveHandler);
+    //     _this.removeEventListener(window,"pointerup",pointerUpHandler);
+
+    //   }else{
+        
+    //     if( mouseEventsSuported ){
+    //       _this.addEventListener(elem,"mousedown",pointerDownHandler);
+    //       _this.removeEventListener(window,"mousemove",pointerMoveHandler);
+    //       _this.removeEventListener(window,"mouseup",pointerUpHandler);
+    //     }
+
+    //     if( touchEventsSupported ){
+    //       _this.addEventListener(elem,"touchstart",pointerDownHandler);
+    //       _this.removeEventListener(window,"touchmove",pointerMoveHandler);
+    //       _this.removeEventListener(window,"touchend",pointerUpHandler);
+    //     }
+
+    //   }
+
+    //   clearInterval( iv );
+      
+    // }
+
+
+
+    // if( pointerEventsSupported ){
+    //   _this.addEventListener(elem,"pointerdown",pointerDownHandler);
+    //   console.warn("pointer down listener added");
+    // }else{
+    //   mouseEventsSuported && _this.addEventListener(elem,"mousedown",pointerDownHandler);
+    //   touchEventsSupported && _this.addEventListener(elem,"touchstart",pointerDownHandler);
+    //   console.warn("mouse down listener added");
+    //   console.warn("touch start listener added");
+    // }
     
   };
 
