@@ -86,8 +86,6 @@ void function(){
 
     }
 
-    
-
     function pointerDownHandler(e){
       console.warn("pointer down handler running")
       e.preventDefault();
@@ -100,6 +98,7 @@ void function(){
       _this.addEventListener( window, "pointerup", pointerUpHandler );
       _this.addEventListener( window, "mouseup", pointerUpHandler );
       _this.addEventListener( window, "touchend", pointerUpHandler );
+      iv = setInterval( updatePosition, updateIntervalInMs );
     }
     
     function pointerUpHandler(e){
@@ -112,12 +111,25 @@ void function(){
       _this.removeEventListener( window, "pointerup", pointerUpHandler );
       _this.removeEventListener( window, "mouseup", pointerUpHandler );
       _this.removeEventListener( window, "touchend", pointerUpHandler );
+      clearInterval( iv );
     }
 
     _this.addEventListener( elem, "pointerdown", pointerDownHandler );
     _this.addEventListener( elem, "mousedown", pointerDownHandler );
     _this.addEventListener( elem, "touchstart", pointerDownHandler );
 
+    function pointerMoveHandler(e){
+      e.preventDefault();
+      if( elem.hasAttribute("data-dragging") ){
+        console.log("pointer move handler running");
+        x = e.clientX - offsetX;
+        y = e.clientY - offsetY;
+      }
+    }
+
+    _this.addEventListener( window, "pointermove", pointerMoveHandler );
+    _this.addEventListener( window, "mousemove", pointerMoveHandler );
+    _this.addEventListener( window, "touchmove", pointerMoveHandler );
 
     // function pointerDownHandler(e){
 
