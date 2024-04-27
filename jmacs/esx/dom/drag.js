@@ -68,8 +68,22 @@ void function(){
       x = Math.min( maxLeft, x );
       y = Math.min( maxTop, y );
 
-      elem.style.left = x + "px";
-      elem.style.top = y + "px";
+      if(
+        (elem.style.left !== x + "px") ||
+        (elem.style.top !== y + "px")
+      ){
+
+        if( elem.style.left !== x + "px" ){
+          elem.style.left = x + "px";
+        }
+        if( elem.style.top !== y + "px" ){
+          elem.style.top = y + "px";
+        }
+
+        console.log("position updated to ("+x+","+y+")");
+        
+      }
+
 
     }
 

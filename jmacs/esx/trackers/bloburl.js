@@ -41,4 +41,13 @@ void function(){
     return URL.revokeObjectURL( url );
   };
 
+  esx.clearObjectURLs = function(){
+    var counter = 0;
+    for( var key in this.BLOB_URL_REGISTRY ){
+      esx.revokeObjectURL( key );
+      counter++;
+    }
+    console.warn("blob storage was cleared. " + counter + " blob urls were revoked.");
+  };
+
 }()

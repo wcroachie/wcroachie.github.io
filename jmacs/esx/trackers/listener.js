@@ -48,4 +48,14 @@ void function(){
 
   };
 
+  esx.clearEventListeners = function(){
+    var counter = 0;
+    for( var i=0; i<this.EVENT_LISTENER_REGISTRY.length; i++ ){
+      var obj = this.EVENT_LISTENER_REGISTRY[i];
+      esx.removeEventListener( obj.target, obj.type, obj.handler );
+      counter++;
+    }
+    console.warn("event listener registry was cleared. " + counter + " event listeners were removed.");
+  };
+
 }()
