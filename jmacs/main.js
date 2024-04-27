@@ -32,7 +32,7 @@
   //   })
   // },2000);
   
-  new Promise(()=>{
+  new Promise(function(){
     console.log("asdgfhjfd");
     eval("console.log( 'asdf' )");
     new Function("console.log('asdf')")();

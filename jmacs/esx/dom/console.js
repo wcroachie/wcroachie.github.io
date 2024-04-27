@@ -154,4 +154,17 @@ void function(){
   }, 200 );
 
 
+  wrapper.addEventListener("click",function(){
+    console.log("WRAPPER CLICKED");
+  });
+  wrapper.addEventListener("pointerdown",function(){
+    console.log("WRAPPER POINTERDOWNED");
+  });
+  wrapper.addEventListener("mousedown",function(){
+    console.log("WRAPPER MOUSEDOWNED");
+  });
+  wrapper.addEventListener("touchstart",function(){
+    console.log("WRAPPER TOUCHSTARTED");
+  });
+
 }()
