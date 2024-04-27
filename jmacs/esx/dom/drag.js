@@ -81,13 +81,15 @@ void function(){
         }
 
         console.log("position updated to ("+x+","+y+")");
-        
+
       }
 
 
     }
 
     function pointerDownHandler(e){
+
+      console.warn("pointer down handler running")
 
       e.preventDefault();
 
@@ -123,6 +125,8 @@ void function(){
 
     function pointerMoveHandler(e){
 
+      console.log("pointer move handler running");
+
       e.preventDefault();
 
       x = e.clientX - offsetX;
@@ -131,6 +135,8 @@ void function(){
     }
 
     function pointerUpHandler(e){
+
+      console.log("pointer up handler running");
 
       e.preventDefault();
 
@@ -164,9 +170,12 @@ void function(){
 
     if( pointerEventsSupported ){
       _this.addEventListener(elem,"pointerdown",pointerDownHandler);
+      console.warn("pointer down listener added");
     }else{
       mouseEventsSuported && _this.addEventListener(elem,"mousedown",pointerDownHandler);
       touchEventsSupported && _this.addEventListener(elem,"touchstart",pointerDownHandler);
+      console.warn("mouse down listener added");
+      console.warn("touch start listener added");
     }
     
   };
