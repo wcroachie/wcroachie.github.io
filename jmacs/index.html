@@ -11,11 +11,8 @@
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
     
-    
-
     <!-- run after nocache.js -->
     <script>
-
       /*
       * try to stop caching by changing the
       * query params every refresh so it
@@ -46,27 +43,9 @@
         }
         
       }();
-
     </script>
 
-    <!-- extra styles for ie -->
-    <script>
-      !function(){
-        "use strict";
-        try{
-          /* RESIZE FIX FOR IE */
-          /* make site appear larger on ie */
-          if( document.documentMode ){
-            var nativeDPI = screen.systemXDPI;
-            var visualDPI = screen.logicalXDPI;
-            var ratio = 100 * (visualDPI/nativeDPI);
-            document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
-          }
-        }catch(e){
-          console.warn(e);
-        }
-      }();
-    </script>
+    
 
     <style>
 
@@ -141,8 +120,27 @@
 
     </style>
 
-    <!-- run nocache.js right before the first element that is sourced or linked externally -->
+    <!-- run nocache.js right before the first element that is sourced or linked externally, before ie style changes too -->
     <script src="nocache.js"></script>
+
+    <!-- extra styles for ie (must come after nocache.js!) -->
+    <script>
+      !function(){
+        "use strict";
+        try{
+          /* RESIZE FIX FOR IE */
+          /* make site appear larger on ie */
+          if( document.documentMode ){
+            var nativeDPI = screen.systemXDPI;
+            var visualDPI = screen.logicalXDPI;
+            var ratio = 100 * (visualDPI/nativeDPI);
+            document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
+          }
+        }catch(e){
+          console.warn(e);
+        }
+      }();
+    </script>
 
     <link rel="stylesheet" href="style.css">
 
@@ -169,6 +167,7 @@
     
     <script src="esx/dom/console.js"></script>
     <script src="esx/dom/drag.js"></script>
+    <script src="esx/dom/fonttest.js"></script>
     <script src="esx/dom/rect.js"></script>
     <script src="esx/dom/upload.js"></script>
     

@@ -1,7 +1,3 @@
-if( typeof esx === "undefined" ){
-  esx = {};
-}
-
 void function(){
 
   "use strict";
@@ -152,19 +148,5 @@ void function(){
     }, Math.floor(1000/60) );
 
   }, 200 );
-
-
-  // wrapper.addEventListener("click",function(){
-  //   console.log("WRAPPER CLICKED");
-  // });
-  // wrapper.addEventListener("pointerdown",function(){
-  //   console.log("WRAPPER POINTERDOWNED");
-  // });
-  // wrapper.addEventListener("mousedown",function(){
-  //   console.log("WRAPPER MOUSEDOWNED");
-  // });
-  // wrapper.addEventListener("touchstart",function(){
-  //   console.log("WRAPPER TOUCHSTARTED");
-  // });
 
 }()

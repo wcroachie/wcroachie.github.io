@@ -1,0 +1,128 @@
+
+/* for meter, webkit uses a separate
+pseudo element for each state, whereas
+moz uses a selector + a single pseudo
+element to target the differet states
+of ethe meter element
+*/
+
+meter{
+  appearance:none;
+  border:1px solid gray;
+  background:none;
+}
+
+/* webkit only */
+@supports( -webkit-appearance:none ){
+
+  meter{
+    -webkit-appearance:none;
+  }
+
+  
+  meter::-webkit-meter-inner-element {
+    
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+
+    width:100%;
+    height:100%;
+    
+    border:1px solid rosybrown;
+  }
+  
+  meter::-webkit-meter-bar {
+    
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+
+    width:100%;
+    height:100%;
+    
+    border:1px solid rebeccapurple;
+    
+    border-radius:0;
+  }
+  
+  meter::-webkit-meter-optimum-value {
+    
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    
+    border:1px solid mediumseagreen;
+  }
+  
+  
+  meter::-webkit-meter-suboptimum-value{
+    
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    
+    border:1px solid orange;
+  }
+  
+  meter::-webkit-meter-even-less-good-value{
+    
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    
+    border:1px solid crimson;
+  }
+  
+}
+
+
+/* moz only */
+@supports( -moz-appearance:none ){
+  
+  meter{
+   -moz-appearance: none;
+  }
+  
+  meter::-moz-meter-bar{
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    
+    width:100%;
+    height:100%;
+    
+    border:1px solid rosybrown;
+  }
+  
+  meter:-moz-meter-optimum::-moz-meter-bar{
+    background:none;
+
+    border:1px solid mediumseagreen;
+  }
+  
+  meter:-moz-meter-sub-optimum::-moz-meter-bar{
+    background:none;
+
+    border:1px solid orange;
+  }
+  
+  meter:-moz-meter-sub-sub-optimum::-moz-meter-bar{
+    background:none;
+
+    border:1px solid crimson;
+  }
+  
+}

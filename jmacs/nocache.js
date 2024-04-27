@@ -61,7 +61,21 @@
   }
 
   /* IMPORTANT - remove this script so that it doesnt cause an infinite loop */
-  document.currentScript.parentElement.removeChild( document.currentScript );
+  try{
+    document.currentScript.parentElement.removeChild( document.currentScript );
+  }catch(e){
+    console.warn(e);
+    try{
+      document.scripts[ document.scripts.length - 1 ].parentElement.removeChild( document.scripts[ document.scripts.length - 1 ] );
+    }catch(e){
+      console.warn(e);
+      try{
+        document.querySelector("script[src*='nocache.js']").remove();
+      }catch(e){
+        console.warn(e);
+      }
+    }
+  }
 
   /* interrupt the parser here */
   document.write("<plaintext>");

@@ -83,8 +83,6 @@ void function(){
 
     }
 
-    
-
     function pointerDownHandler(e){
       
       e.preventDefault();

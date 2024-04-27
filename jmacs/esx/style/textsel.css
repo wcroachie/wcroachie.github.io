@@ -1,0 +1,14 @@
+/* ------------ TEXT SELECTION ------------ */
+:root{
+  --selection-fg-color:rgb(60,60,60);
+  --selection-bg-color:rosybrown
+}
+
+::selection {
+  color:var(--selection-fg-color);
+  background: var(--selection-bg-color);
+}
+::-moz-selection {
+  color:var(--selection-fg-color);
+  background:var(--selection-bg-color);
+}

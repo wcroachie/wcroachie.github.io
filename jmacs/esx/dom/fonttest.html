@@ -11,7 +11,6 @@
     <meta http-equiv="expires" content="0">
 
     <style>
-
      
       *{
 
@@ -105,106 +104,78 @@
         box-sizing:border-box;
       }
 
-      
-      
-
-      form{
+      .test-box, output{
         position:absolute;
         display:block;
+        left:0;
+      }
+
+      .test-box{
+        position:absolute;
+        display:block;
+        padding:0;
+        margin:0;
         left:0;
         top:0;
-        width:100%;
-        height:20px;
-        border:1px solid sienna;
+        width:fit-content;
+        height:fit-content;
+        border:1px solid;
+        font-size:20px;
+        white-space:nowrap;
+        /* font-family:serif; */
+        font-family:"Times New Roman";
       }
 
-      pre{
-        position:absolute;
-        display:block;
-        left:0;
-        top:20px;
-        width:100%;
-        height:calc(100% - 40px);
-        border:5px solid gray;
-        margin:0;
-        overflow:auto;
+      output{
+        top:30px;
       }
 
-      .error{
-        color:red;
-      }
-      .warn{
-        color:orange;
-      }
-
-
-      .status-bar{
-        position:absolute;
-        display:block;
-        left:0;
-        bottom:0;
-        width:100%;
-        height:20px;
-        overflow:hidden;
-        border:1px solid blue;
-      }
-
-      
-    
      </style>
      
    </head>
    <!-- adding these inline event handlers fixes a bug in safari iOS -->
     <body ontouchstart onclick ondblclick>
 
-      <form action="javascript:;">
-        <input type="text">
-        <button></button>
-      </form>
-
-      <pre>
-      </pre>
-
-      <div class="status-bar">
-        <div class="blob-memory">
-          <a href="https://en.wikipedia.org/wiki/Object_storage" target="_blank">blob storage</a>
-          <meter min="0" low="0.7" high="0.8" max="1" optimum="0" value="0"></meter>
-          <meter></meter>
-          <output></output>
-        </div>
-        <div class="event-listeners">
-          <a href="javascript:;" >event listeners</a>
-          <meter min="0" low="0.7" high="0.8" max="1" optimum="0" value="0"></meter>
-          <meter></meter>
-          <output></output>
-        </div>
-        <div class="web-workers">
-          <a href="javascript:;" >web workers</a>
-          <meter min="0" low="0.7" high="0.8" max="1" optimum="0" value="0"></meter>
-          <meter></meter>
-          <output></output>
-        </div>
+      <div class="test-box">
+        ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`1234567890-=~!@#$%^&*()_+[]\{}|;':",./<>?'
       </div>
+      <output></output>
 
+      <script src="rect.js"></script>
       <script>
-
         !function(){
-
-          "use strict";
           
-          addEventListener("message",function(e){
-            document.querySelector("pre").innerHTML += e.data;
-          });
-
-          document.querySelector("form").addEventListener("submit",function(){
-            var value = document.querySelector("input").value;
-            top.postMessage( value , "*" );
-          });
-
-          top.postMessage( null, "*" );
+          var div = document.querySelector("div");
+          var output = document.querySelector("output");
           
+          function _getComputedStyle( elem ){
+            try{
+              return getComputedStyle( elem );
+            }catch(e){
+              console.warn(e);
+              return {};
+            }
+          }
+          
+          var rect = esx.getClientRect( div );
+          var style = _getComputedStyle( div );
+
+          var measuredWidth = rect.width;
+          var measuredHeight = rect.height;
+          var font = style.fontFamily;
+
+          output.textContent = measuredWidth + "px x " + measuredHeight + "px @ " + style.fontSize + ", " + font;
+          var hasTimesNewRoman;
+          if( measuredWidth > 969.8 || measuredWidth < 969.75 ){
+            /* not times new roman */
+            hasTimesNewRoman = false;
+          }else{
+            hasTimesNewRoman = true;
+          }
+
+          top.postMessage( hasTimesNewRoman, "*" );
+
         }();
-
       </script>
 
    </body>

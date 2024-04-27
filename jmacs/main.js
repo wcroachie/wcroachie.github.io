@@ -32,24 +32,24 @@
   //   })
   // },2000);
   
-  new Promise(function(){
-    console.log("asdgfhjfd");
-    eval("console.log( 'asdf' )");
-    new Function("console.log('asdf')")();
-    (function(){}).constructor("console.log('asdf')")();
-    ({
-      ["asdfg"](){
-        var stack = esx.generateStackTrace();
-        console.warn( stack );
-        var lines = esx.split( stack, "\n" );
-        for( var i=0; i<lines.length; i++ ){
-          console.log( esx.parseStackLine(lines[i]) );
-        }
+  // new Promise(function(){
+  //   console.log("asdgfhjfd");
+  //   eval("console.log( 'asdf' )");
+  //   new Function("console.log('asdf')")();
+  //   (function(){}).constructor("console.log('asdf')")();
+  //   // ({
+  //   //   ["asdfg"](){
+  //   //     var stack = esx.generateStackTrace();
+  //   //     console.warn( stack );
+  //   //     var lines = esx.split( stack, "\n" );
+  //   //     for( var i=0; i<lines.length; i++ ){
+  //   //       console.log( esx.parseStackLine(lines[i]) );
+  //   //     }
 
-        esx.evalFromJSUrl("console.log('asdf')");
-      }
-    })["asdfg"]()
-  });
+  //   //     esx.evalFromJSUrl("console.log('asdf')");
+  //   //   }
+  //   // })["asdfg"]()
+  // });
 
 
   // setTimeout(function timeoutCallback(){
