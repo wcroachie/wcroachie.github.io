@@ -59,7 +59,7 @@ void function(){
     return arr.length;
   };
 
-  esx.compare = function( arrs ){
+  esx.compareArrs = function( arrs ){
     if( arrs.length <= 1 ){
       return true;
     }
@@ -139,6 +139,17 @@ void function(){
       }
     }
     return out;
+  };
+
+  esx.sum = function( arr ){
+    var acc = 0;
+    for( var i=0; i<arr.length; i++ ){
+      acc += arr[i];
+      if( !isFinite(acc) ){
+        break;
+      }
+    }
+    return acc;
   };
 
   esx.map = function( arr, callback ){

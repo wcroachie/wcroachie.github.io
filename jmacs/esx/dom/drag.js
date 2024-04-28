@@ -46,38 +46,60 @@ void function(){
     var offsetX = 0;
     var offsetY = 0;
     var iv;
-    var x=0, y=0;
     var active = false;
+
+    var elemRect = { x:0,y:0,width:0,height:0 };
+    var parentRect = { x:0,y:0,width:0,height:0 };
+
+    if( typeof this.getClientRect === "function" ){
+      elemRect = this.getClientRect( elem );
+      parentRect = this.getClientRect( elem.parentElement );
+    }
+
+    var x = elemRect.x || 0;
+    var y = elemRect.y || 0;
+
+    updatePosition();
 
     function updatePosition(){
       
-      var elemRect = _this.getClientRect( elem );
-      var parentRect = _this.getClientRect( elem.parentElement );
-
+      if( typeof _this.getClientRect === "function" ){
+        elemRect = _this.getClientRect( elem );
+        parentRect = _this.getClientRect( elem.parentElement );
+      }
+      
       var minLeft = 0 - elemRect.width + 20;
       var maxLeft = parentRect.width - 20;
       
       var minTop = 0 - elemRect.height + 20;
       var maxTop = parentRect.height - 20;
 
-      x = Math.max( minLeft, x );
-      y = Math.max( minTop, y );
-      x = Math.min( maxLeft, x );
-      y = Math.min( maxTop, y );
+      var _x = Math.max( minLeft, x );
+      var _y = Math.max( minTop, y );
+      _x = Math.min( maxLeft, _x );
+      _y = Math.min( maxTop, _y );
+
+      if( elem.style.right !== "auto" ){
+        elem.style.right = "auto";
+      }
+
+      if( elem.style.bottom !== "auto" ){ 
+        elem.style.bottom = "auto";
+      }
 
       if(
-        (elem.style.left !== x + "px") ||
-        (elem.style.top !== y + "px")
+        (elem.style.left !== _x + "px") ||
+        (elem.style.top !== _y + "px")
       ){
 
-        if( elem.style.left !== x + "px" ){
-          elem.style.left = x + "px";
+        if( elem.style.left !== _x + "px" ){
+          elem.style.left = _x + "px";
         }
-        if( elem.style.top !== y + "px" ){
-          elem.style.top = y + "px";
+        if( elem.style.top !== _y + "px" ){
+          elem.style.top = _y + "px";
         }
 
-        logDebug && console.log("position updated to ("+x+","+y+")");
+        logDebug && console.log("position updated to ("+_x+","+_y+")");
 
       }
 
@@ -135,7 +157,18 @@ void function(){
     _this.addEventListener( window, "pointermove", pointerMoveHandler );
     _this.addEventListener( window, "mousemove", pointerMoveHandler );
     _this.addEventListener( window, "touchmove", pointerMoveHandler );
-    
+
+
+    /**
+     * monitor the parent client rect for size
+     * changes, and update if it has changed
+     **/
+    setInterval( function(){
+      if( typeof _this.getClientRect === "function" && !_this.compareObjs( [_this.getClientRect(elem.parentElement), parentRect] ) ){
+        updatePosition();
+      }
+    }, updateIntervalInMs );
+
   };
 
 }()

@@ -6,7 +6,7 @@
   // });
 
 
-  console.log( esx.parseStackLine("abc:12:34") );
+  // console.log( esx.parseStackLine("abc:12:34") );
 
 
   /*

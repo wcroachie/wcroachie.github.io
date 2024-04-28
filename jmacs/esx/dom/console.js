@@ -11,9 +11,15 @@ void function(){
   var wrapperId = "_-" + Date.now();
 
   var wrapper = document.documentElement.appendChild( document.createElement("div") );
-  wrapper.id = wrapperId;
   var iframe = wrapper.appendChild( document.createElement("iframe") );
   var style = document.documentElement.appendChild( document.createElement("style") );
+
+  var iframeLoaded = false;
+
+  iframe.src = "esx/dom/console.html";
+
+  wrapper.id = wrapperId;
+
   style.textContent =
     ""
     + "#" + wrapperId + "{"
@@ -43,30 +49,28 @@ void function(){
     +   "opacity:0.5;"
     + "}"
   ;
-  
-  var iframeLoaded = false;
 
-  esx.addEventListener(window,"message",function(e){
-    if( e.source === iframe.contentWindow ){
+  esx.addEventListener(window,"message",handler);
+
+  function handler(e){
+    if( iframe.isConnected && iframe.contentWindow && e.source === iframe.contentWindow ){
       if( !iframeLoaded ){
         iframeLoaded = true;
       }else{
-        var value = e.data;
-        console.log( value );
-        console.log( this.eval(value ) )
+        console.log( e.data + "" );
+        console.log( eval( e.data ) + "" );
       }
     }
-  });
-  
+  }
+
   setTimeout(function(){
     if( !iframeLoaded ){
       console.warn("iframe load timed out");
       iframeLoaded = true;
+      esx.removeEventListener(window,"message",handler);
     }
   },1000);
   
-  iframe.src = "esx/dom/console.html";
-
   /* hook console methods */
   for( var key in console ){
     !function( key ){
@@ -103,9 +107,6 @@ void function(){
     esx.push( queue, [div.outerHTML] );
   }
 
-
-  
-
   onerror = function(){
     var message = arguments[0];
     var source = arguments[1];
@@ -122,15 +123,12 @@ void function(){
     console.error( JSON.stringify(obj,null,"  ") + "\nstack:\n\n" + (obj.error || {}).stack );
   };
 
-  esx.addEventListener( window, "error", function(e){
-    console.error(e);
-  });
-
-
   wrapper.style.width = "512px";
   wrapper.style.height = "512px";
   wrapper.style.maxWidth = "100%";
   wrapper.style.maxHeight = "100%";
+  wrapper.style.left = "calc(100% - 512px)";
+  wrapper.style.top = "calc(100% - 512px)";
 
   setTimeout( function(){
 

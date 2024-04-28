@@ -52,7 +52,7 @@ void function(){
         }
       }, 20000 );
     
-      script.src = src;
+      script.setAttribute("src",src);
     
       /* needs to be documentElement */
       document.documentElement.appendChild(script);

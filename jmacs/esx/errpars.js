@@ -34,6 +34,8 @@ void function(){
 
   esx.parseStackLine = function( line ){
 
+    var _this = this;
+
     if( line[line.length - 1] === ")" ){
       line = this.slice( line, 0, -1 );
       if( line.indexOf("(") !== -1 ){
@@ -62,11 +64,20 @@ void function(){
       line = this.pop( this.split(line,"@") );
       line = this.split( line, "#" )[0];
       line = this.split( line, "?" )[0];
-      var scheme = this.getUrlScheme( location.href );
-      var domain = this.getUrlDomain( location.href );
-      var path = this.getUrlPath( location.href );
-      var parentpath = this.getPathParentpath( path );
-      var parentUri = scheme + "//" + domain + parentpath;
+      var parentUri;
+      if( typeof document === "object" ){
+        parentUri = function(){
+          var a = document.createElement("a");
+          a.href = "A";
+          return _this.slice(a.href,0,-1);
+        }();
+      }else{
+        var scheme = this.getUrlScheme( location.href );
+        var domain = this.getUrlDomain( location.href );
+        var path = this.getUrlPath( location.href );
+        var parentpath = this.getPathParentpath( path );
+        parentUri = scheme + "//" + domain + parentpath;
+      }
       var relativeDir = this.pop( this.split( line, parentUri ) );
       line = relativeDir;
     }

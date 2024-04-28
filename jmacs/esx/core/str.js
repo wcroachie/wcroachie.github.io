@@ -97,6 +97,7 @@ void function(){
 
 
   esx.padStart = function( str, maxLen, char ){
+    str += "";
     while( str.length < maxLen ){
       str = char + str;
     }
@@ -106,6 +107,7 @@ void function(){
 
   /* trims the space character from beginning and end, space character (0x20) ONLY */
   esx.trimSpace = function( str ){
+    str += "";
     while( str[0] === " " ){
       str = this.slice( str, 1 );
     }
@@ -118,6 +120,7 @@ void function(){
 
   /* trims some generic whitespace characters (not all of them, not the same as modern versions ) */
   esx.trimWhitespace = function( str ){
+    str += "";
     var whitespaceCharacters = " \f\n\r\t\v";
     while( whitespaceCharacters.indexOf( str[0] ) !== -1 ){
       str = this.slice( str, 1 );
@@ -131,12 +134,14 @@ void function(){
 
   /* check if a string can be coerced to a number without being NaN */
   esx.canBeNum = function( str ){
+    str += "";
     return !isNaN( str * 1 );
   };
 
 
   /* check if a string starts with a substring that can be converted to a number */
   esx.canStartWithNum = function( str ){
+    str += "";
     var acc="", results=[];
     for( var i=0; i<str.length; i++ ){
       if( acc.length && this.canBeNum(acc) ){
@@ -149,6 +154,7 @@ void function(){
 
 
   esx.canEndWithNum = function( str ){
+    str += "";
     var acc="", results=[];
     for( var i=str.length-1; i>=0; i-- ){
       if( acc.length && this.canBeNum(acc) ){
@@ -184,6 +190,7 @@ void function(){
 
 
   esx.repeat = function( str, times ){
+    str += "";
     var out = "";
     for( var i=0; i<times; i++ ){
       out += str;
@@ -193,6 +200,7 @@ void function(){
 
 
   esx.replaceFirst = function( str, substringToReplace, substitute ){
+    str += "";
     var start = str.indexOf( substringToReplace );
     if( start > -1 ){
       var end = start + substringToReplace.length;
@@ -206,6 +214,7 @@ void function(){
 
 
   esx.replaceAll = function( str, substringToReplace, substitute ){
+    str += "";
     var out = "";
     outer : for( var i=0; i<str.length; i++ ){
       var ch = str[i];

@@ -1,0 +1,77 @@
+
+
+/* for meter, webkit uses a separate
+pseudo element for each state, whereas
+moz uses a selector + a single pseudo
+element to target the differet states
+of ethe meter element
+*/
+
+
+progress{
+  appearance:none;
+  border:1px solid gray;
+  background:none;
+}
+
+/* maybe add a lil animation here? */
+progress:indeterminate{
+  border:1px solid mediumseagreen;
+}
+
+/* webkit only */
+@supports( -webkit-appearance:none ){
+  
+  progress{
+    -webkit-appearance:none;
+  }
+
+  progress::-webkit-progress-bar{
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    border:1px solid rosybrown;
+  }
+  progress::-webkit-progress-inner-element{
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    border:1px solid royalblue;
+  }
+  progress::-webkit-progress-inner-value{
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    border:1px solid mediumorchid;
+  }
+  progress::-webkit-progress-value{
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    border:1px solid sienna;
+  }
+
+}
+
+/* moz only */
+@supports( -moz-appearance:none ){
+  progress{
+    -moz-appearance:none;
+  }
+  ::-moz-progress-bar{
+    display:block;
+    position:relative;
+    box-sizing:border-box;
+    background:none;
+    text-align:left;
+    border:1px solid purple;
+  }
+}
