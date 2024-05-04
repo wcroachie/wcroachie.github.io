@@ -3,13 +3,9 @@ if( typeof esx === "undefined" ){
 }
 
 void function(){
-
   "use strict";
 
   esx.escape = function( str ){
-
-    str = str + "";
-
     /**
      * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/escape
      * 
@@ -23,17 +19,20 @@ void function(){
      * 0 if necessary.
      */
 
-    var doNotEncode = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.@\\*/+";
+    str += "";
 
+    var doNotEncode = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.@\\*/+";
     var esc = "";
-    for( var i=0; i<str.length; i++ ){
-      var ch = str[i];
+    var i, ch, code, out;
+
+    for( i=0; i<str.length; i++ ){
+      ch = str[i];
       if( doNotEncode.indexOf( ch ) > -1 ){
         esc += ch;
         continue;
       }
-      var code = ch.charCodeAt();
-      var out = code.toString(16).toUpperCase();
+      code = ch.charCodeAt();
+      out = code.toString(16).toUpperCase();
       if( code < 256 ){
         out = this.padStart( out, 2, "0" );
         out = "%" + out;
@@ -50,23 +49,24 @@ void function(){
 
   esx.unescape = function( esc ){
 
-    esc = esc + "";
+    esc += "";
     
     var str = "";
     var validHexChars = "0123456789abcdef";
-    for( var i=0; i<esc.length; i++ ){
-      var ch = esc[i];
+    var i, ch, slice, code, out;
+    for( i=0; i<esc.length; i++ ){
+      ch = esc[i];
       if( ch === "%" ){
         if( esc[i+1] === "u" ){
-          var slice = this.slice( esc, i+2, i+6 ).toLowerCase();
+          slice = this.slice( esc, i+2, i+6 ).toLowerCase();
           if(
             validHexChars.indexOf(slice[0]) > -1 &&
             validHexChars.indexOf(slice[1]) > -1 &&
             validHexChars.indexOf(slice[2]) > -1 &&
             validHexChars.indexOf(slice[3]) > -1
           ){
-            var code = parseInt( slice, 16 );
-            var out = String.fromCharCode( code );
+            code = parseInt( slice, 16 );
+            out = String.fromCharCode( code );
             str += out;
             i += 5;
             continue;
@@ -75,13 +75,13 @@ void function(){
             continue; 
           }
         }else{
-          var slice = this.slice( esc, i+1, i+3 ).toLowerCase();
+          slice = this.slice( esc, i+1, i+3 ).toLowerCase();
           if(
             validHexChars.indexOf(slice[0]) > -1 &&
             validHexChars.indexOf(slice[1]) > -1
           ){
-            var code = parseInt( slice, 16 );
-            var out = String.fromCharCode( code );
+            code = parseInt( slice, 16 );
+            out = String.fromCharCode( code );
             str += out;
             i += 2;
             continue;
@@ -105,16 +105,17 @@ void function(){
 
   function encode( utf8Bytes, excludeCodes ){
     var uri = "";
-    outer : for( var i=0; i<utf8Bytes.length; i++ ){
-      var code = utf8Bytes[i];
-      for( var j=0; j<excludeCodes.length; j++ ){
-        var excludeCode = excludeCodes[j];
+    var i, code, j, excludeCode, encodedByte;
+    outer : for( i=0; i<utf8Bytes.length; i++ ){
+      code = utf8Bytes[i];
+      for( j=0; j<excludeCodes.length; j++ ){
+        excludeCode = excludeCodes[j];
         if( code === excludeCode ){
           uri += String.fromCharCode( code );
           continue outer;
         }
       }
-      var encodedByte = code.toString(16).toUpperCase();
+      encodedByte = code.toString(16).toUpperCase();
       while( encodedByte.length < 2 ){
         encodedByte = "0" + encodedByte;
       }
@@ -126,22 +127,23 @@ void function(){
   function decode( uri, excludeCodes ){
     var validHexChars = "0123456789abcdef";
     var str = "";
-    outer : for( var i=0; i<uri.length; i++ ){
-      var ch = uri[i];
+    var i, ch, code, j, excludeCode, out;
+    outer : for( i=0; i<uri.length; i++ ){
+      ch = uri[i];
       if( ch === "%" ){
         if(
           validHexChars.indexOf(uri[i+1].toLowerCase()) > -1 &&
           validHexChars.indexOf(uri[i+2].toLowerCase()) > -1
         ){
-          var code = parseInt( uri[i+1] + uri[i+2], 16 );
-          for( var j=0; j<excludeCodes.length; j++ ){
-            var excludeCode = excludeCodes[j];
+          code = parseInt( uri[i+1] + uri[i+2], 16 );
+          for( j=0; j<excludeCodes.length; j++ ){
+            excludeCode = excludeCodes[j];
             if( code === excludeCode ){
               str += ch;
               continue outer;
             }
           }
-          var out = String.fromCharCode( code );
+          out = String.fromCharCode( code );
           str += out;
           i += 2;
         }else{

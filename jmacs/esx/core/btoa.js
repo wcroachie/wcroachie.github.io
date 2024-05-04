@@ -12,16 +12,15 @@ void function(){
 
   esx.btoa = function( str ){
 
-    str = str + "";
+    str += "";
 
-    var
-      len = str.length - 1,
-      i = -1,
-      b64 = ""
-    ;
+    var len = str.length - 1;
+    var i = -1;
+    var b64 = "";
+    var code;
 
     while( i < len ){
-      var code = str.charCodeAt(++i) << 16 | str.charCodeAt(++i) << 8 | str.charCodeAt(++i);
+      code = str.charCodeAt(++i) << 16 | str.charCodeAt(++i) << 8 | str.charCodeAt(++i);
       b64 += ascii[(code >>> 18) & 63] + ascii[(code >>> 12) & 63] + ascii[(code >>> 6) & 63] + ascii[code & 63];
     }
 
@@ -41,25 +40,26 @@ void function(){
 
   esx.atob = function( b64 ){
     
-    b64 = b64 + "";
+    b64 += "";
 
     var indices = {};
-    
-    for( var i=0; i<ascii.length; i++ ){
-      var ch = ascii[i];
+
+    var i, ch;
+
+    for( i=0; i<ascii.length; i++ ){
+      ch = ascii[i];
       indices[ch] = i;
     }
 
-    var
-      pos = b64.indexOf("="),
-      padded = pos > -1,
-      len = padded ? pos : b64.length,
-      i = -1,
-      str = ""
-    ;
+    var pos = b64.indexOf("=");
+    var padded = pos > -1;
+    var len = padded ? pos : b64.length;
+    var i = -1;
+    var str = "";
+    var code;
 
     while (i < len) {
-      var code = indices[b64[++i]] << 18 | indices[b64[++i]] << 12 | indices[b64[++i]] << 6 | indices[b64[++i]];
+      code = indices[b64[++i]] << 18 | indices[b64[++i]] << 12 | indices[b64[++i]] << 6 | indices[b64[++i]];
       if(code){
         str += String.fromCharCode((code >>> 16) & 255, (code >>> 8) & 255, code & 255);
       }

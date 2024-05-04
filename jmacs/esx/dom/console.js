@@ -1,7 +1,12 @@
+if( typeof esx === "undefined" ){
+  esx = {};
+}
+
 void function(){
 
   "use strict";
   
+  /* get a unique date */
   var now = Date.now();
   for( ;; ){
     if( Date.now() > now ){
@@ -10,7 +15,13 @@ void function(){
   }
   var wrapperId = "_-" + Date.now();
 
-  var wrapper = document.documentElement.appendChild( document.createElement("div") );
+  esx.CONSOLE_WRAPPER_ID = wrapperId;
+  /**
+   * dont add it to the dom yet. need to wait a little
+   * before adding it to DOM in case we are using nocache.js
+   * to interrupt parser
+   **/
+  var wrapper = document.createElement("div");
   var iframe = wrapper.appendChild( document.createElement("iframe") );
   var style = document.documentElement.appendChild( document.createElement("style") );
 
@@ -30,8 +41,9 @@ void function(){
     +   "width:300px;"
     +   "height:150px;"
     +   "box-sizing:border-box;"
-    +   "border:1px solid blue;"  
-    +   "background-color:white;"
+    +   "border:1px solid blue;"
+    +   "background-color:lightgray;"
+    +   "border-radius:15px;"
     + "}"
     + ""
     + "#" + wrapperId + " > iframe{"
@@ -43,6 +55,7 @@ void function(){
     +   "height:calc(100% - 30px);"
     +   "box-sizing:border-box;"
     +   "border:1px solid red;"
+    +   "border-radius:10px;"
     + "}"
     + ""
     + "#" + wrapperId + "[data-dragging]{"
@@ -56,9 +69,10 @@ void function(){
     if( iframe.isConnected && iframe.contentWindow && e.source === iframe.contentWindow ){
       if( !iframeLoaded ){
         iframeLoaded = true;
+        console.info("iframe loaded");
       }else{
         console.log( e.data + "" );
-        console.log( eval( e.data ) + "" );
+        console.log( eval( e.data ) );
       }
     }
   }
@@ -69,7 +83,7 @@ void function(){
       iframeLoaded = true;
       esx.removeEventListener(window,"message",handler);
     }
-  },1000);
+  },2000);
   
   /* hook console methods */
   for( var key in console ){
@@ -98,13 +112,14 @@ void function(){
     var line = esx.parseStackLine( lineToGet );
     div.textContent += line.filename + ":" + line.lineno + ":" + line.colno + " > ";
     if( args.length > 1 ){
-      for( var i=0; i<args.length; i++ ){
+      var i;
+      for( i=0; i<args.length; i++ ){
         div.textContent += "\n  " + args[i];
       }
     }else{
       div.textContent += args[0];
     }
-    esx.push( queue, [div.outerHTML] );
+    esx.push( queue, div.outerHTML );
   }
 
   onerror = function(){
@@ -123,14 +138,17 @@ void function(){
     console.error( JSON.stringify(obj,null,"  ") + "\nstack:\n\n" + (obj.error || {}).stack );
   };
 
-  wrapper.style.width = "512px";
-  wrapper.style.height = "512px";
+  // wrapper.style.width = "512px";
+  // wrapper.style.height = "512px";
   wrapper.style.maxWidth = "100%";
   wrapper.style.maxHeight = "100%";
   wrapper.style.left = "calc(100% - 512px)";
   wrapper.style.top = "calc(100% - 512px)";
 
+  
   setTimeout( function(){
+
+    document.documentElement.appendChild( wrapper );
 
     /* update the wrapper's position at 60 fps */
     esx.makeDraggable( wrapper, Math.floor(1000/60) );
@@ -138,8 +156,9 @@ void function(){
     /* every frame, check and empty the queue */
     setInterval( function(){
       if( iframeLoaded ){
+        var msg;
         while( queue.length ){
-          var msg = esx.shift( queue );
+          msg = esx.shift( queue );
           iframe.contentWindow.postMessage( msg, "*" );
         }
       }

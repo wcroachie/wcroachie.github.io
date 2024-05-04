@@ -12,7 +12,7 @@ void function(){
     if( typeof str === "undefined" ){
       str = "";
     }else{
-      str = str + "";
+      str += "";
     }
     
     /**
@@ -23,9 +23,11 @@ void function(){
     var i = 0;
     var bytes = [];
     
-    for( var ci = 0; ci != str.length; ci++ ){
+    var ci, c, c2;
+    
+    for( ci=0; ci!=str.length; ci++ ){
       
-      var c = str.charCodeAt(ci);
+      c = str.charCodeAt(ci);
       
       if(c < 128){
         bytes[i++] = c;
@@ -39,7 +41,7 @@ void function(){
           if (++ci >= str.length){
             throw "incomplete surrogate pair";
           }
-          var c2 = str.charCodeAt(ci);
+          c2 = str.charCodeAt(ci);
           if (c2 < 0xdc00 || c2 > 0xdfff){
             throw "2nd surrogate char 0x" + c2.toString(16) + " at index " + ci + " out of range";
           }
@@ -63,9 +65,10 @@ void function(){
   esx.utf82str = function( utf8 ){
     
     var i = 0, str = "";
+    var c;
 
     while (i < utf8.length) {
-      var c = utf8[i++];
+      c = utf8[i++];
       if (c > 127) {
         if (c > 191 && c < 224) {
           if (i >= utf8.length){

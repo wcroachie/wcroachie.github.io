@@ -2,9 +2,37 @@ if( typeof esx === "undefined" ){
   esx = {};
 }
 
+/**
+ * unscrupulous way of determining whether user
+ * has Times New Roman installed. draws some letters
+ * on the canvas and checks against allowed width
+ * and height ranges.
+ */
+
 void function(){
 
   "use strict";
+
+  esx.addFont = function( initsrc ){
+
+    var link = document.createElement("link");
+    
+    link.rel = "stylesheet";
+    link.href = initsrc;
+    document.head.appendChild( link );
+
+    var iframes = document.querySelectorAll("iframe");
+    var i, iframe;
+    for( i=0; i<iframes.length; i++ ){
+      iframe = iframes[i];
+      iframe.contentWindow.postMessage({"add-link":link.href},"*");
+    }
+
+  };
+
+
+
+
 
   var acceptableRanges = {
     "A" : {
@@ -38,7 +66,7 @@ void function(){
    * good values
    * 
    * 
-   * windows chromium (vivaldi)
+   * windows chromium
    * 
    * A  w=92, h=87
    * g  w=59, h=86
@@ -69,7 +97,7 @@ void function(){
    * 
    * 
    * 
-   * bad values (fake times new roman font):
+   * bad values example (fake times new roman font):
    * 
    * A  w=91, h=84
    * g  w=57, h=94
@@ -96,17 +124,24 @@ void function(){
   }
 
   if( needTimesNewRoman ){
-    var link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "style/font/timesnr/init.css";
-    document.head.appendChild( link );
-    var iframes = document.querySelectorAll("iframe");
-    for( var i=0; i<iframes.length; i++ ){
-      var iframe = iframes[i];
-      iframe.contentWindow.postMessage({"add-link":link.href},"*");
-    }
+    
+    setTimeout(function(){
+      esx.addFont("style/font/timesnr/init.css");
+    },1000);
+
     console.warn("TimesNewRomanError: Times New Roman had to be imported. Please install Times New Roman to prevent this from happening again.");
+    
   }
+
+
+
+  
+
+  // /* add necap3 */
+  // setTimeout(function(){
+  //   esx.addFont("style/font/necap3/init.css");
+  // },1000);
+
 
 
 }()

@@ -14,10 +14,11 @@ void function(){
     paramStr = this.replaceAll( paramStr, "+", "%20" );
     var pieces = this.split( paramStr, "&" );
     var obj = {};
-    for( var i=0; i<pieces.length; i++ ){
-      var piece = pieces[i];
-      var key = this.split( piece, "=" )[0];
-      var value = this.slice( piece, key.length + 1);
+    var i, piece, key, value;
+    for( i=0; i<pieces.length; i++ ){
+      piece = pieces[i];
+      key = this.split( piece, "=" )[0];
+      value = this.slice( piece, key.length + 1);
       obj[key] = this.decodeURIComponent( value );
     }
     return obj;
@@ -25,11 +26,12 @@ void function(){
 
   esx.obj2params = function( obj ){
     var params = "";
-    for( var key in obj ){
-      var encodedKey = this.encodeURIComponent(key);
-      var encodedValue = this.encodeURIComponent(obj[key]);
-      var encodedKeyWithPlusSpaces = this.replaceAll( encodedKey, "%20", "+" );
-      var encodedValueWithPlusSpaces = this.replaceAll( encodedValue, "%20", "+" );
+    var key, encodedKey, encodedValue, encodedKeyWithPlusSpaces, encodedValueWithPlusSpaces;
+    for( key in obj ){
+      encodedKey = this.encodeURIComponent(key);
+      encodedValue = this.encodeURIComponent(obj[key]);
+      encodedKeyWithPlusSpaces = this.replaceAll( encodedKey, "%20", "+" );
+      encodedValueWithPlusSpaces = this.replaceAll( encodedValue, "%20", "+" );
       params += "&" + encodedKeyWithPlusSpaces + "=" + encodedValueWithPlusSpaces;
     }
     params = this.slice( params, 1 );
@@ -55,8 +57,9 @@ void function(){
     }
     /* match rest of scheme */
     tokensToMatch += "0123456789+.-";
-    for( var i=1; i<scheme.length; i++ ){
-      var ch = scheme[i];
+    var i, ch;
+    for( i=1; i<scheme.length; i++ ){
+      ch = scheme[i];
       if( tokensToMatch.indexOf(ch) === -1 ){
         throw "invalid url"
       }

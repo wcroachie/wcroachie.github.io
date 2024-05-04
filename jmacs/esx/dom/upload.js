@@ -46,7 +46,7 @@ void function(){
         var files = [];
 
         for( var i=0; i<e.target.files.length; i++ ){
-          _this.push( files, [e.target.files[i]] );
+          _this.push( files, e.target.files[i] );
         }
         
         try{

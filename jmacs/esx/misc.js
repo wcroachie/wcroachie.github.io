@@ -46,7 +46,11 @@ void function(){
 
     var neg = false;
   
-    ms = ms * 1;
+    ms *= 1;
+    
+    if( !isFinite(ms) ){
+      throw "the argument 'ms' must be either absent, falsy, or a value that is coerced to a finite Number when multiplied by 1";
+    }
   
     if( ms < 0 ){
       neg = true;
@@ -81,7 +85,7 @@ void function(){
     var mx = this.pop( this.splitAtCh( str, ".", true ) );
     var beforeMx = this.slice( str, 0, -mx.length - 1 );
     var values = this.splitAtCh( beforeMx, ":", true );
-    this.push( values, [mx] );
+    this.push( values, mx );
     values = this.map( values, function(e,n,a){
       return e * 1;
     });
@@ -118,9 +122,9 @@ void function(){
   /* ms must be either falsy or coerced to be a number */
   esx.sleep = function( ms ){
     ms = ms || 0;
-    ms = ms * 1;
-    if( isNaN(ms) ){
-      throw "the argument 'ms' must be either absent, falsy, or a value that is coerced to a valid Number when multiplied by 1";
+    ms *= 1;
+    if( !isFinite(ms) ){
+      throw "the argument 'ms' must be either absent, falsy, or a value that is coerced to a finite Number when multiplied by 1";
     }
     var start = Date.now();
     for( ;; ){

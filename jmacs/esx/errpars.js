@@ -45,6 +45,7 @@ void function(){
 
     var betweenColons = this.split( line, ":" );
     var lineno=null, colno=null;
+    
     if(
       this.canBeNum( betweenColons[betweenColons.length - 1 ] ) &&
       this.canBeNum( betweenColons[betweenColons.length - 2 ] )

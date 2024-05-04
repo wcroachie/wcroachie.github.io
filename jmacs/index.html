@@ -2,7 +2,8 @@
 <html>
   <head>
 
-    
+    <script src="nocache.js"></script>
+
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0">
@@ -11,42 +12,6 @@
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
     
-    <!-- run after nocache.js -->
-    <script>
-      /*
-      * try to stop caching by changing the
-      * query params every refresh so it
-      * always loads new (for debugging)
-      */
-      !function(){
-
-        "use strict";
-
-        try{
-          var isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
-          var navEntries = performance.getEntriesByType("navigation");
-          if(navEntries){
-            if(navEntries[0]){
-              var p = navEntries[0].type;
-              if( p==="reload" || p==="back_forward" || p==="prerender" ){
-                isReloaded = true;
-              }
-            }
-          }
-          if( !location.search || isReloaded ){ 
-            var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
-            var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
-            location.search = a + "=" + b;
-          }
-        }catch(e){
-          console.warn(e);
-        }
-        
-      }();
-    </script>
-
-    
-
     <style>
 
       :root{
@@ -106,10 +71,6 @@
         top:0;
         width:100%;
         height:100%;
-        left: env( safe-area-inset-left, 0 );
-        top: env( safe-area-inset-top, 0 );
-        width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) );
-        height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) );
         overflow:auto;
       }
       
@@ -124,9 +85,25 @@
 
     </style>
 
-    <!-- run nocache.js right before the first element that is sourced or linked externally, before ie style changes too -->
-    <script src="nocache.js"></script>
 
+    <script>
+      /* if window is window.top, add env variables to body */
+      !function(){
+        if( window === window.top ){
+          var style = document.head.appendChild( document.createElement("style") );
+          style.textContent =
+            "body{"
+            +   "left: env( safe-area-inset-left, 0 );"
+            +   "top: env( safe-area-inset-top, 0 );"
+            +   "width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) );"
+            +   "height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) );"
+            + "}"
+          ;
+        }
+      }();
+    </script>
+
+    
     <!-- extra styles for ie (must come after nocache.js!) -->
     <script>
       !function(){
@@ -146,13 +123,12 @@
       }();
     </script>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style/style.css">
 
   </head>
 
   <!-- adding these inline event handlers fixes a bug in safari iOS -->
   <body ontouchstart onclick ondblclick>
-
 
     <p>
       this is a test paragraph <b>asdfg<i>ashgdfd</i></b><i>asdfg</i>

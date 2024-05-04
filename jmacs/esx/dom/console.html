@@ -69,11 +69,6 @@
         top:0;
         width:100%;
         height:100%;
-        /* COMMENT THIS OUT FOR SUBFRAMES BUT IT MUST EXIST IN THE TOP WINDOW! */
-        /* left: env( safe-area-inset-left, 0 ); */
-        /* top: env( safe-area-inset-top, 0 ); */
-        /* width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) ); */
-        /* height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) ); */
         overflow:auto;
       }
       
@@ -87,6 +82,24 @@
       }
 
     </style>
+
+
+    <script>
+      /* if window is window.top, add env variables to body */
+      !function(){
+        if( window === window.top ){
+          var style = document.head.appendChild( document.createElement("style") );
+          style.textContent =
+            "body{"
+            +   "left: env( safe-area-inset-left, 0 );"
+            +   "top: env( safe-area-inset-top, 0 );"
+            +   "width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) );"
+            +   "height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) );"
+            + "}"
+          ;
+        }
+      }();
+    </script>
 
     <!-- extra styles for ie, add after first script tag -->
     <script>
@@ -102,17 +115,21 @@
       }();
     </script>
 
+    <link rel="stylesheet" href="../../style/style.css">
 
     <style>
 
-      
+      html{
+        background-color:rgb(20,20,20);
+      }
+
+      :root{
+        color:seagreen;
+      }
 
       *{
         box-sizing:border-box;
       }
-
-      
-      
 
       form{
         position:absolute;
@@ -134,13 +151,20 @@
         border:5px solid gray;
         margin:0;
         overflow:auto;
+        text-shadow:0 0 1px;
       }
 
+      .log{
+        color:seagreen;
+      }
       .error{
-        color:red;
+        color:crimson;
       }
       .warn{
-        color:orange;
+        color:orangered;
+      }
+      .info{
+        color:cornflowerblue;
       }
 
 
@@ -155,7 +179,19 @@
         border:1px solid blue;
       }
 
-      
+      .status-bar > *{
+        display: inline-block;
+      }
+
+      #toggle-word-wrap:checked ~ pre,
+      #toggle-word-wrap:checked ~ * pre{
+        white-space:pre-wrap;
+      }
+
+      #toggle-word-wrap:checked ~ [for='toggle-word-wrap'],
+      #toggle-word-wrap:checked ~ * [for='toggle-word-wrap']{
+        background-color:lightgray;
+      }
     
      </style>
      
@@ -163,15 +199,17 @@
    <!-- adding these inline event handlers fixes a bug in safari iOS -->
     <body ontouchstart onclick ondblclick>
 
+      <input id="toggle-word-wrap" type="checkbox" style="display:none;" hidden checked>
+
       <form action="javascript:;">
-        <input type="text">
+        <input id="user-input" type="text">
         <button></button>
       </form>
 
-      <pre>
-      </pre>
+      <pre></pre>
 
       <div class="status-bar">
+        <label for="toggle-word-wrap">toggle word wrap</label>
         <div class="blob-memory">
           <a href="https://en.wikipedia.org/wiki/Object_storage" target="_blank">blob storage</a>
           <meter min="0" low="0.7" high="0.8" max="1" optimum="0" value="0"></meter>
@@ -184,7 +222,7 @@
           <meter></meter>
           <output></output>
         </div>
-        <div class="web-workers">
+        <div class="workers">
           <a href="javascript:;" >web workers</a>
           <meter min="0" low="0.7" high="0.8" max="1" optimum="0" value="0"></meter>
           <meter></meter>
@@ -199,8 +237,10 @@
           "use strict";
           
           addEventListener("message",function(e){
+            /* its a string? console commands */
             if( typeof e.data === "string" ){
               document.querySelector("pre").innerHTML += e.data;
+            /* its something else... */
             }else{
               if( typeof e.data === "object" && e.data !== null ){
                 if( "add-link" in e.data ){
@@ -211,6 +251,16 @@
                   document.head.appendChild( link );
                   console.log("link added to subframe");
                 }
+                if( "blob-urls-update" in e.data ){
+                  var blobUrlMemory = e.data["blob-urls-update"];
+                  document.querySelector(".blob-memory meter").value = blobUrlMemory;
+                }
+                if( "event-listeners-update" in e.data ){
+                  var activeELCount = e.data["event-listeners-update"];
+                }
+                if( "workers-update" in e.data ){
+                  var workersCount = e.data["workers-update"];
+                }
               }else{
                 /* null or something else */
               }
@@ -218,7 +268,7 @@
           });
 
           document.querySelector("form").addEventListener("submit",function(){
-            var value = document.querySelector("input").value;
+            var value = document.querySelector("#user-input").value;
             top.postMessage( value , "*" );
           });
 

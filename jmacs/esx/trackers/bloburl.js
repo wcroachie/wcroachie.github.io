@@ -19,6 +19,17 @@ void function(){
    * 
    */
 
+  function updateIframes(){
+    var iframes = document.querySelectorAll("iframe");
+    var i, iframe;
+    for( i=0; i<iframes.length; i++ ){
+      iframe = iframes[i];
+      iframe.contentWindow.postMessage({
+        "blob-urls-update" : esx.BLOB_MEMORY / esx.BLOB_MEMORY_LIMIT
+      },"*");
+    }
+  }
+
   esx.BLOB_URL_REGISTRY = {};
   esx.BLOB_MEMORY = 0;
   esx.BLOB_MEMORY_LIMIT = 268435456; /* 256 miB */
@@ -31,6 +42,7 @@ void function(){
     var size = blob.size;
     this.BLOB_URL_REGISTRY[ url ] = size;
     this.BLOB_MEMORY += size;
+    updateIframes();
     return url;
   };
 
@@ -38,12 +50,14 @@ void function(){
     var size = this.BLOB_URL_REGISTRY[ url ];
     delete this.BLOB_URL_REGISTRY[ url ];
     this.BLOB_MEMORY -= size;
+    updateIframes();
     return URL.revokeObjectURL( url );
   };
 
   esx.clearObjectURLs = function(){
     var counter = 0;
-    for( var key in this.BLOB_URL_REGISTRY ){
+    var key;
+    for( key in this.BLOB_URL_REGISTRY ){
       esx.revokeObjectURL( key );
       counter++;
     }

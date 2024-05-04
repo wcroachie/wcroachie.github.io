@@ -4,6 +4,21 @@ if( typeof esx === "undefined" ){
 
 void function(){
 
+  /**
+   * @todo
+   *  - allow snapping
+   *  - create a resize handle + custom resize functionality
+   * @todo
+   *  - allow snapping
+   *  - create a resize handle + custom resize functionality
+   * @todo
+   *  - allow snapping
+   *  - create a resize handle + custom resize functionality
+   * @todo
+   *  - allow snapping
+   *  - create a resize handle + custom resize functionality
+   */
+
   "use strict";
 
   /**
@@ -32,14 +47,12 @@ void function(){
    * second argument is silently coerced to zero.
    */
 
-  esx.makeDraggable = function( elem, updateIntervalInMs, logDebug ){
-
-    logDebug = !!logDebug;
+  esx.makeDraggable = function( elem, updateIntervalInMs ){
 
     var _this = this;
 
     updateIntervalInMs = updateIntervalInMs * 1;
-    if( isNaN(updateIntervalInMs) ){
+    if( !isFinite(updateIntervalInMs) ){
       updateIntervalInMs = 0;
     }
 
@@ -79,6 +92,41 @@ void function(){
       _x = Math.min( maxLeft, _x );
       _y = Math.min( maxTop, _y );
 
+
+      var snapDistance = 10;
+
+      if( _x < 0 + snapDistance && _x > 0 - snapDistance ){
+        _x = 0;
+      }
+
+      if( _x > parentRect.width - elemRect.width - snapDistance && _x < parentRect.width - elemRect.width + snapDistance ){
+        _x = parentRect.width - elemRect.width;
+      }
+
+      if( _x > maxLeft - snapDistance ){
+        _x = maxLeft;
+      }
+
+      if( _x < minLeft + snapDistance ){
+        _x = minLeft;
+      }
+
+      if( _y < 0 + snapDistance && _y > 0 - snapDistance ){
+        _y = 0;
+      }
+
+      if( _y > parentRect.height - elemRect.height - snapDistance && _y < parentRect.height - elemRect.height + snapDistance ){
+        _y = parentRect.height - elemRect.height;
+      }
+
+      if( _y > maxTop - snapDistance ){
+        _y = maxTop;
+      }
+
+      if( _y < minTop + snapDistance ){
+        _y = minTop;
+      }
+
       if( elem.style.right !== "auto" ){
         elem.style.right = "auto";
       }
@@ -87,20 +135,12 @@ void function(){
         elem.style.bottom = "auto";
       }
 
-      if(
-        (elem.style.left !== _x + "px") ||
-        (elem.style.top !== _y + "px")
-      ){
+      if( elem.style.left !== _x + "px" ){
+        elem.style.left = _x + "px";
+      }
 
-        if( elem.style.left !== _x + "px" ){
-          elem.style.left = _x + "px";
-        }
-        if( elem.style.top !== _y + "px" ){
-          elem.style.top = _y + "px";
-        }
-
-        logDebug && console.log("position updated to ("+_x+","+_y+")");
-
+      if( elem.style.top !== _y + "px" ){
+        elem.style.top = _y + "px";
       }
 
     }
@@ -164,7 +204,7 @@ void function(){
      * changes, and update if it has changed
      **/
     setInterval( function(){
-      if( typeof _this.getClientRect === "function" && !_this.compareObjs( [_this.getClientRect(elem.parentElement), parentRect] ) ){
+      if( typeof _this.getClientRect === "function" && !_this.compareObjs( _this.getClientRect(elem.parentElement), parentRect ) ){
         updatePosition();
       }
     }, updateIntervalInMs );

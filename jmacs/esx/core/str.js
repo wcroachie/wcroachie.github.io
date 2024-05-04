@@ -6,35 +6,50 @@ void function(){
 
   "use strict";
 
+
+  esx.toPrimitiveString = function( val ){
+
+    var obj = (typeof Object === "object" && Object !== null) ? Object : {} ;
+    var objProto = obj.prototype || obj.__proto__ || obj;
+    var toString = objProto.toString || function(){ return this + "" };
+    return toString.call( val );
+
+  };
+
+  
   esx.split = function( str, substr ){
+
     str += "";
     substr += "";
+
     var pieces = [];
+    
     if( substr === "" ){
-      for( var i=0; i<str.length; i++ ){
+      
+      var i;
+      for( i=0; i<str.length; i++ ){
         pieces[ pieces.length ] = str[i]
       }
+
     }else{
+
+      var piece;
       while( str.length ){
         if( str.indexOf(substr) === -1 ){
           pieces[ pieces.length ] = str;
           break;
         }
-        var piece = this.slice( str, 0, str.indexOf(substr) );
+        piece = this.slice( str, 0, str.indexOf(substr) );
         pieces[ pieces.length ] = piece;
         str = this.slice( str, str.indexOf(substr) + substr.length );
       }
+
     }
+
     return pieces;
+
   };
 
-
-  esx.toPrimitiveString = function( val ){
-    var obj = (typeof Object === "object" && Object !== null) ? Object : {} ;
-    var objProto = obj.prototype || obj.__proto__ || obj;
-    var toString = objProto.toString || function(){ return this + "" };
-    return toString.call( val );
-  };
 
   /* split a string by a single character */
   // esx.splitAtCh = function( str, ch, omitEmptyStrings ){
@@ -97,111 +112,158 @@ void function(){
 
 
   esx.padStart = function( str, maxLen, char ){
+
     str += "";
+
     while( str.length < maxLen ){
       str = char + str;
     }
+
     return str;
+
   };
 
 
   /* trims the space character from beginning and end, space character (0x20) ONLY */
   esx.trimSpace = function( str ){
+
     str += "";
+
     while( str[0] === " " ){
       str = this.slice( str, 1 );
     }
+
     while( str[ str.length - 1 ] === " "){
       str = this.slice( str, 0, -1 );
     }
+
     return str;
+
   };
 
 
   /* trims some generic whitespace characters (not all of them, not the same as modern versions ) */
   esx.trimWhitespace = function( str ){
+
     str += "";
+
     var whitespaceCharacters = " \f\n\r\t\v";
+
     while( whitespaceCharacters.indexOf( str[0] ) !== -1 ){
       str = this.slice( str, 1 );
     }
+
     while( whitespaceCharacters.indexOf( str[ str.length - 1 ] ) !== -1 ){
       str = this.slice( str, 0, -1 );
     }
+
     return str;
+
   };
 
 
-  /* check if a string can be coerced to a number without being NaN */
+  /* check if a string can be coerced to a number and be Finite */
   esx.canBeNum = function( str ){
+
     str += "";
-    return !isNaN( str * 1 );
+
+    return isFinite( str * 1 );
+
   };
 
 
   /* check if a string starts with a substring that can be converted to a number */
   esx.canStartWithNum = function( str ){
+
     str += "";
-    var acc="", results=[];
-    for( var i=0; i<str.length; i++ ){
+
+    var i, acc="", results=[];
+    for( i=0; i<str.length; i++ ){
       if( acc.length && this.canBeNum(acc) ){
-        this.push( results, [acc] );
+        this.push( results, acc );
       }
       acc += str[i];
     }
+
     return this.pop( results ) || false;
+    
   };
 
 
   esx.canEndWithNum = function( str ){
+
     str += "";
-    var acc="", results=[];
-    for( var i=str.length-1; i>=0; i-- ){
+
+    var i, acc="", results=[];
+    for( i=str.length-1; i>=0; i-- ){
       if( acc.length && this.canBeNum(acc) ){
-        this.push( results, [acc] );
+        this.push( results, acc );
       }
       acc = str[i] + acc;
     }
+
     return this.pop( results ) || false;
+
   };
+
+
+
 
   /* only lowercase */
   esx.randomId = function(){
+
     return this.slice( Math.random().toString(36), 2 );
+
   };
 
-  
-  /* for get requests, add a random param to prevent cachine */
-  esx.randomParam = function(){
-    return this.randomId() + "=" + this.randomId();
-  };
 
 
   /* lowercase and uppercase chars, A-Z, a-z, and 0-9 */
   esx.randomId2 = function(){
+
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    var out = "";
-    for( var i=0; i<8; i++ ){
-      var ch = this.randomItem( chars );
+
+    var i, ch, out="";
+    for( i=0; i<8; i++ ){
+      ch = this.randomItem( chars );
       out += ch;
     }
+
     return out;
+
+  };
+
+  
+  /* for get requests, add a random param to prevent caching */
+  esx.randomParam = function(){
+
+    return this.randomId() + "=" + this.randomId();
+
   };
 
 
+
+
   esx.repeat = function( str, times ){
+
     str += "";
-    var out = "";
-    for( var i=0; i<times; i++ ){
+
+    var i, out="";
+    for( i=0; i<times; i++ ){
       out += str;
     }
+
     return out;
+
   };
 
 
   esx.replaceFirst = function( str, substringToReplace, substitute ){
+
     str += "";
+
     var start = str.indexOf( substringToReplace );
+
     if( start > -1 ){
       var end = start + substringToReplace.length;
       var before = this.slice( str, 0, start );
@@ -210,16 +272,19 @@ void function(){
     }else{
       return str;
     }
+
   };
 
 
   esx.replaceAll = function( str, substringToReplace, substitute ){
+
     str += "";
-    var out = "";
-    outer : for( var i=0; i<str.length; i++ ){
-      var ch = str[i];
+
+    var i, ch, j, out="";
+    outer : for( i=0; i<str.length; i++ ){
+      ch = str[i];
       if( ch === substringToReplace[0] ){
-        for( var j=0; j<substringToReplace.length; j++ ){
+        for( j=0; j<substringToReplace.length; j++ ){
           if( str[i+j] !== substringToReplace[j] ){
             out += ch;
             continue outer;
@@ -232,7 +297,9 @@ void function(){
         out += ch;
       }
     }
+
     return out;
+    
   };
   
 

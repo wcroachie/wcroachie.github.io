@@ -17,6 +17,7 @@ void function(){
     return ctx;
   };
 
+  /* tells you the ctx type that was used when the canvas context was constructed */
   esx.getCtxType = function( ctx ){
     var ctxType;
     if( typeof CanvasRenderingContext2D !== "undefined" && ctx instanceof CanvasRenderingContext2D ){
@@ -46,35 +47,46 @@ void function(){
    * they default to 0.
    **/
   esx.getPixelData = function( ctx, x, y, w, h, settings ){
+
     var canvas = ctx.canvas;
+
     if( typeof x === "undefined" ){
       x = 0;
     }
     if( typeof y === "undefined" ){
       y = 0;
     }
+
+    x *= 1;
+    y *= 1;
+
+    if( !isFinite(x) ){
+      throw "x must be such that x * 1 is finite";
+    }
+    
+    if( !isFinite(y) ){
+      throw "y must be such that y * 1 is finite";
+    }
+
     if( typeof w === "undefined" ){
       w = canvas.width - x;
     }
+    
     if( typeof h === "undefined" ){
       h = canvas.height - y;
     }
-    x *= 1;
-    y *= 1;
+    
     w *= 1;
     h *= 1;
-    if( isNaN(x) ){
-      throw "x must be such that x * 1 is not NaN";
+
+    if( !isFinite(w) ){
+      throw "w must be such that w * 1 is finite";
     }
-    if( isNaN(y) ){
-      throw "y must be such that y * 1 is not NaN";
+
+    if( !isFinite(h) ){
+      throw "h must be such that h * 1 is finite";
     }
-    if( isNaN(w) ){
-      throw "w must be such that w * 1 is not NaN";
-    }
-    if( isNaN(h) ){
-      throw "h must be such that h * 1 is not NaN";
-    }
+
     if( x < 0 || x > canvas.width ){
       throw "x value out of bounds";
     }
@@ -125,8 +137,8 @@ void function(){
 
   esx.applyAlphaThreshold = function( ctx, value ){
     value *= 1;
-    if( isNaN(value) ){
-      throw "value must be such that value * 1 is not NaN";
+    if( !isFinite(value) ){
+      throw "value must be such that value * 1 is finite";
     }
     if( value < 0 || value > 255 ){
       throw "value must be a Number between 0 and 255, inclusive"
@@ -144,7 +156,6 @@ void function(){
       data[i+1] = pixel[1];
       data[i+2] = pixel[2];
       data[i+3] = pixel[3];
-
     }
     ctx.clearRect( 0,0,canvas.width, canvas.height );
     this.putPixelData( ctx, data, 0, 0, canvas.width, canvas.height );
@@ -155,8 +166,8 @@ void function(){
   esx.isEmptyRow = function( ctx, y ){
     var canvas = ctx.canvas;
     y *= 1;
-    if( isNaN( y ) ){
-      throw "y must be such that y * 1 is not NaN"
+    if( !isFinite( y ) ){
+      throw "y must be such that y * 1 is finite"
     }
     if( y < 0 || y > canvas.height ){
       throw "y value out of bounds"
@@ -174,8 +185,8 @@ void function(){
   esx.isEmptyCol = function( ctx, x ){
     var canvas = ctx.canvas;
     x *= 1;
-    if( isNaN( x ) ){
-      throw "x must be such that y * 1 is not NaN"
+    if( !isFinite( x ) ){
+      throw "x must be such that y * 1 is finite"
     }
     if( x < 0 || x > canvas.width ){
       throw "x value out of bounds"
@@ -192,6 +203,11 @@ void function(){
 
   
 
+  /**
+   * returns an object that contains values from each
+   * side for the region of the canvas occupied by
+   * pixels with an alpha greater than 0
+   **/
   esx.getActiveRegion = function( ctx ){
     
     var left=0, top=0, right=0, bottom=0;
@@ -242,7 +258,7 @@ void function(){
 
 
 
-  /* creates a canvas from an active region of the provided canvas, using the same context */
+  /* creates a canvas from an active region of the provided canvas, using the same context type */
   esx.makeCanvasFromRegion = function( ctx, x, y, w, h, ctxParams ){
     var ctxType = this.getCtxType( ctx );
     var data = this.getPixelData( ctx, x, y, w, h );

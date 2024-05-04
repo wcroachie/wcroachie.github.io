@@ -20,7 +20,7 @@ void function(){
       handler : handler
     };
 
-    this.push( this.EVENT_LISTENER_REGISTRY, [obj] );
+    this.push( this.EVENT_LISTENER_REGISTRY, obj );
 
     return target.addEventListener( type, handler );
 
@@ -28,8 +28,9 @@ void function(){
 
   esx.removeEventListener = function( target, type, handler ){
 
-    for( var i=0; i<this.EVENT_LISTENER_REGISTRY.length; i++ ){
-      var obj = this.EVENT_LISTENER_REGISTRY[i];
+    var i, obj;
+    for( i=0; i<this.EVENT_LISTENER_REGISTRY.length; i++ ){
+      obj = this.EVENT_LISTENER_REGISTRY[i];
       if(
         obj.target === target &&
         obj.type === type &&
@@ -49,9 +50,9 @@ void function(){
   };
 
   esx.clearEventListeners = function(){
-    var counter = 0;
-    for( var i=0; i<this.EVENT_LISTENER_REGISTRY.length; i++ ){
-      var obj = this.EVENT_LISTENER_REGISTRY[i];
+    var counter = 0, i, obj;
+    for( i=0; i<this.EVENT_LISTENER_REGISTRY.length; i++ ){
+      obj = this.EVENT_LISTENER_REGISTRY[i];
       esx.removeEventListener( obj.target, obj.type, obj.handler );
       counter++;
     }
