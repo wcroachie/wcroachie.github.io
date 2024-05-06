@@ -153,5 +153,24 @@ void function(){
     return this.slice( filename, 0, -ext.length - 1 );
   };
   
+  esx.getLocalParentPath = function(){
+    var _this = this;
+    var parentUri;
+    if( typeof document === "object" ){
+      parentUri = function(){
+        var a = document.createElement("a");
+        a.href = "x";
+        return _this.slice(a.href,0,-1);
+      }();
+    }else{
+      var href = location.href;
+      var scheme = this.getUrlScheme( href );
+      var domain = this.getUrlDomain( href );
+      var path = this.getUrlPath( href );
+      var parentpath = this.getPathParentpath( path );
+      parentUri = scheme + "//" + domain + parentpath;
+    }
+    return parentUri;
+  };
 
 }()

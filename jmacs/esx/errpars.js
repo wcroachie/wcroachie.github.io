@@ -65,20 +65,7 @@ void function(){
       line = this.pop( this.split(line,"@") );
       line = this.split( line, "#" )[0];
       line = this.split( line, "?" )[0];
-      var parentUri;
-      if( typeof document === "object" ){
-        parentUri = function(){
-          var a = document.createElement("a");
-          a.href = "A";
-          return _this.slice(a.href,0,-1);
-        }();
-      }else{
-        var scheme = this.getUrlScheme( location.href );
-        var domain = this.getUrlDomain( location.href );
-        var path = this.getUrlPath( location.href );
-        var parentpath = this.getPathParentpath( path );
-        parentUri = scheme + "//" + domain + parentpath;
-      }
+      var parentUri = this.getLocalParentPath();
       var relativeDir = this.pop( this.split( line, parentUri ) );
       line = relativeDir;
     }

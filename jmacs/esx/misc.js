@@ -35,7 +35,7 @@ void function(){
     }
 
     /* needs to be at least 1 event cycle to run then and catch, otherwise throws an error! */
-    setTimeout(function(){
+    esx.setTimeout(function(){
       callback( resolve, reject );
     });
 
@@ -48,7 +48,7 @@ void function(){
   
     ms *= 1;
     
-    if( !isFinite(ms) ){
+    if( !this.isFinite(ms) ){
       throw "the argument 'ms' must be either absent, falsy, or a value that is coerced to a finite Number when multiplied by 1";
     }
   
@@ -123,7 +123,7 @@ void function(){
   esx.sleep = function( ms ){
     ms = ms || 0;
     ms *= 1;
-    if( !isFinite(ms) ){
+    if( !this.isFinite(ms) ){
       throw "the argument 'ms' must be either absent, falsy, or a value that is coerced to a finite Number when multiplied by 1";
     }
     var start = Date.now();
@@ -145,12 +145,13 @@ void function(){
     if( typeof intervalInMs === "undefined" ){
       intervalInMs = 0;
     }
+    var _this = this;
     return new this.PromiseLike(function(res,rej){
       !function wait(){
         if( conditionCallback() ){
           res();
         }else{
-          setTimeout( wait, intervalInMs );
+          _this.setTimeout( wait, intervalInMs );
         }
       }();
     })

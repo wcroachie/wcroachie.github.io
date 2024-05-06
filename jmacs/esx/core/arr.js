@@ -317,7 +317,7 @@ void function(){
     var i;
     for( i=0; i<arr.length; i++ ){
       acc += arr[i];
-      if( !isFinite(acc) ){
+      if( !this.isFinite(acc) ){
         break;
       }
     }
@@ -357,11 +357,11 @@ void function(){
     istart *= 1;
     iend *= 1;
 
-    if( !isFinite(istart) ){
+    if( !this.isFinite(istart) ){
       istart = 0;
     }
 
-    if( !isFinite(iend) || iend > arrOrStr.length ){
+    if( !this.isFinite(iend) || iend > arrOrStr.length ){
       iend = arrOrStr.length;
     }
 

@@ -15,7 +15,6 @@ void function(){
   }
   var wrapperId = "_-" + Date.now();
 
-  esx.CONSOLE_WRAPPER_ID = wrapperId;
   /**
    * dont add it to the dom yet. need to wait a little
    * before adding it to DOM in case we are using nocache.js
@@ -44,6 +43,7 @@ void function(){
     +   "border:1px solid blue;"
     +   "background-color:lightgray;"
     +   "border-radius:15px;"
+    // +   "box-shadow:0 0 10px black;"
     + "}"
     + ""
     + "#" + wrapperId + " > iframe{"
@@ -54,7 +54,7 @@ void function(){
     +   "width:calc(100% - 4px);"
     +   "height:calc(100% - 30px);"
     +   "box-sizing:border-box;"
-    +   "border:1px solid red;"
+    +   "border:1px solid;"
     +   "border-radius:10px;"
     + "}"
     + ""
@@ -77,7 +77,7 @@ void function(){
     }
   }
 
-  setTimeout(function(){
+  esx.setTimeout(function(){
     if( !iframeLoaded ){
       console.warn("iframe load timed out");
       iframeLoaded = true;
@@ -142,28 +142,60 @@ void function(){
   // wrapper.style.height = "512px";
   wrapper.style.maxWidth = "100%";
   wrapper.style.maxHeight = "100%";
-  wrapper.style.left = "calc(100% - 512px)";
-  wrapper.style.top = "calc(100% - 512px)";
+  
+
+  document.documentElement.appendChild( wrapper );
+
+  /* every frame, check and empty the queue */
+  /**
+   * @todo - also send data for esx.blob memory and event handlers status etc
+   * @todo - also send data for esx.blob memory and event handlers status etc
+   * @todo - also send data for esx.blob memory and event handlers status etc
+   * @todo - also send data for esx.blob memory and event handlers status etc
+   * @todo - also send data for esx.blob memory and event handlers status etc
+   */
+
+
+
+
+  esx.setInterval( function(){
+    
+    if( iframeLoaded ){
+
+      var msg;
+      while( queue.length ){
+        msg = esx.shift( queue );
+        iframe.contentWindow.postMessage( msg, "*" );
+      }
+
+    }
+
+  }, Math.floor(1000/60) );
+
 
   
-  setTimeout( function(){
-
-    document.documentElement.appendChild( wrapper );
-
+  esx.when(function(){
+    return typeof esx.makeDraggable === "function" 
+  }).then(function(){
     /* update the wrapper's position at 60 fps */
     esx.makeDraggable( wrapper, Math.floor(1000/60) );
+    var testdiv = document.body.appendChild( document.createElement("div") );
+    testdiv.style.position = "absolute";
+    testdiv.style.display = "block";
+    testdiv.style.width = "100px";
+    testdiv.style.height = "100px";
+    testdiv.style.backgroundColor = "gray";
+    esx.makeDraggable( testdiv );
+  });
 
-    /* every frame, check and empty the queue */
-    setInterval( function(){
-      if( iframeLoaded ){
-        var msg;
-        while( queue.length ){
-          msg = esx.shift( queue );
-          iframe.contentWindow.postMessage( msg, "*" );
-        }
+  
+  esx.when(function(){ return iframeLoaded }).then(function(){
+    iframe.contentWindow.postMessage({"add-link":esx.getLocalParentPath() + "style/font/necap3/init.css"},"*");
+    esx.when(function(){ return "NEED_TIMES_NEW_ROMAN" in esx }).then(function(){
+      if( esx.NEED_TIMES_NEW_ROMAN ){
+        iframe.contentWindow.postMessage({"add-link":esx.getLocalParentPath() + "style/font/timesnr/init.css"},"*");
       }
-    }, Math.floor(1000/60) );
-
-  }, 200 );
+    });
+  });
 
 }()

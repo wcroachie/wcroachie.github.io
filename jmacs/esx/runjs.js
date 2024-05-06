@@ -8,6 +8,8 @@ void function(){
 
   esx.runScript = function( src ){
     
+    var _this = this;
+
     return new this.PromiseLike(function(res,rej){
 
       if( typeof document !== "object" ){
@@ -45,7 +47,7 @@ void function(){
       };
     
       /* timeout after 20 seconds */
-      setTimeout( function(){
+      _this.setTimeout( function(){
         if( !done ){
           remove();
           rej( "timeout for loading resource from "+src+"." );

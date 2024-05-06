@@ -4,21 +4,6 @@ if( typeof esx === "undefined" ){
 
 void function(){
 
-  /**
-   * @todo
-   *  - allow snapping
-   *  - create a resize handle + custom resize functionality
-   * @todo
-   *  - allow snapping
-   *  - create a resize handle + custom resize functionality
-   * @todo
-   *  - allow snapping
-   *  - create a resize handle + custom resize functionality
-   * @todo
-   *  - allow snapping
-   *  - create a resize handle + custom resize functionality
-   */
-
   "use strict";
 
   /**
@@ -27,13 +12,129 @@ void function(){
    * that are descendants of the dragged elem
    **/
   var style = document.documentElement.appendChild( document.createElement("style") );
-  style.textContent = 
-      "[data-dragging] iframe,"
+  style.textContent = ""
+    + "[data-dragging] iframe,"
     + "[data-dragging] object,"
     + "[data-dragging] embed{"
     +   "pointer-events:none;"
     + "}"
   ;
+
+  esx.when(function(){return typeof esx.getMaxSupportedZIndex === "function"}).then(function(){
+    style.textContent += ""
+      + "[data-dragging]{"
+      +   "z-index:" + esx.getMaxSupportedZIndex() + ";"
+      + "}"
+    ;
+  });
+
+  esx.DRAGGABLE_UPDATE_INTERVAL_MS = 1000/60;
+  esx.DRAGGABLE_ELEMS = [];
+
+  esx.makeDraggable = function( elem ){
+    if( esx.DRAGGABLE_ELEMS.indexOf(elem) !== -1 ){
+      throw "could not make draggable, element was already draggable";
+    }
+    esx.push( esx.DRAGGABLE_ELEMS, elem );     
+    elem.setAttribute("data-style",elem.getAttribute("style"));
+  };
+
+
+  esx.unmakeDraggable = function( elem ){
+    var index = esx.DRAGGABLE_ELEMS.indexOf( elem );
+    if( index === -1 ){
+      throw "could not unmake draggable, element was not draggable"
+    }
+    /* remove from list */
+    var before = esx.slice( esx.DRAGGABLE_ELEMS, 0, index );
+    var after = esx.slice( esx.DRAGGABLE_ELEMS, index + 1 );
+    esx.DRAGGABLE_ELEMS = esx.concat( before, after );
+    elem.setAttribute("style",elem.getAttribute("data-style"));
+    elem.removeAttribute("data-style");
+  };
+
+
+  var offsetX = 0;
+  var offsetY = 0;
+  var iv;
+  var active = false;
+  var elemRect = { x:0,y:0,width:0,height:0 };
+  var parentRect = { x:0,y:0,width:0,height:0 };
+  var x=0, y=0;
+
+  function updatePosition( elem ){
+    
+    if( typeof esx.getClientRect === "function" ){
+      elemRect = esx.getClientRect( elem );
+      parentRect = esx.getClientRect( elem.parentElement );
+    }
+    
+    var minLeft = 0 - elemRect.width + 20;
+    var maxLeft = parentRect.width - 20;
+    
+    var minTop = 0 - elemRect.height + 20;
+    var maxTop = parentRect.height - 20;
+
+    var _x = Math.max( minLeft, x );
+    var _y = Math.max( minTop, y );
+    _x = Math.min( maxLeft, _x );
+    _y = Math.min( maxTop, _y );
+
+    var snapDistance = 10;
+
+    if( _x < 0 + snapDistance && _x > 0 - snapDistance ){
+      _x = 0;
+    }
+
+    if( _x > parentRect.width - elemRect.width - snapDistance && _x < parentRect.width - elemRect.width + snapDistance ){
+      _x = parentRect.width - elemRect.width;
+    }
+
+    if( _x > maxLeft - snapDistance ){
+      _x = maxLeft;
+    }
+
+    if( _x < minLeft + snapDistance ){
+      _x = minLeft;
+    }
+
+    if( _y < 0 + snapDistance && _y > 0 - snapDistance ){
+      _y = 0;
+    }
+
+    if( _y > parentRect.height - elemRect.height - snapDistance && _y < parentRect.height - elemRect.height + snapDistance ){
+      _y = parentRect.height - elemRect.height;
+    }
+
+    if( _y > maxTop - snapDistance ){
+      _y = maxTop;
+    }
+
+    if( _y < minTop + snapDistance ){
+      _y = minTop;
+    }
+
+    if( elem.style.right !== "auto" ){
+      elem.style.right = "auto";
+    }
+
+    if( elem.style.bottom !== "auto" ){ 
+      elem.style.bottom = "auto";
+    }
+
+    if( elem.style.left !== _x + "px" ){
+      elem.style.left = _x + "px";
+    }
+
+    if( elem.style.top !== _y + "px" ){
+      elem.style.top = _y + "px";
+    }
+
+  }
+
+
+
+
 
   /**
    * to minimize unnecessary dom mutations,
@@ -47,168 +148,56 @@ void function(){
    * second argument is silently coerced to zero.
    */
 
-  esx.makeDraggable = function( elem, updateIntervalInMs ){
 
-    var _this = this;
-
-    updateIntervalInMs = updateIntervalInMs * 1;
-    if( !isFinite(updateIntervalInMs) ){
-      updateIntervalInMs = 0;
-    }
-
-    var offsetX = 0;
-    var offsetY = 0;
-    var iv;
-    var active = false;
-
-    var elemRect = { x:0,y:0,width:0,height:0 };
-    var parentRect = { x:0,y:0,width:0,height:0 };
-
-    if( typeof this.getClientRect === "function" ){
-      elemRect = this.getClientRect( elem );
-      parentRect = this.getClientRect( elem.parentElement );
-    }
-
-    var x = elemRect.x || 0;
-    var y = elemRect.y || 0;
-
-    updatePosition();
-
-    function updatePosition(){
-      
-      if( typeof _this.getClientRect === "function" ){
-        elemRect = _this.getClientRect( elem );
-        parentRect = _this.getClientRect( elem.parentElement );
-      }
-      
-      var minLeft = 0 - elemRect.width + 20;
-      var maxLeft = parentRect.width - 20;
-      
-      var minTop = 0 - elemRect.height + 20;
-      var maxTop = parentRect.height - 20;
-
-      var _x = Math.max( minLeft, x );
-      var _y = Math.max( minTop, y );
-      _x = Math.min( maxLeft, _x );
-      _y = Math.min( maxTop, _y );
-
-
-      var snapDistance = 10;
-
-      if( _x < 0 + snapDistance && _x > 0 - snapDistance ){
-        _x = 0;
-      }
-
-      if( _x > parentRect.width - elemRect.width - snapDistance && _x < parentRect.width - elemRect.width + snapDistance ){
-        _x = parentRect.width - elemRect.width;
-      }
-
-      if( _x > maxLeft - snapDistance ){
-        _x = maxLeft;
-      }
-
-      if( _x < minLeft + snapDistance ){
-        _x = minLeft;
-      }
-
-      if( _y < 0 + snapDistance && _y > 0 - snapDistance ){
-        _y = 0;
-      }
-
-      if( _y > parentRect.height - elemRect.height - snapDistance && _y < parentRect.height - elemRect.height + snapDistance ){
-        _y = parentRect.height - elemRect.height;
-      }
-
-      if( _y > maxTop - snapDistance ){
-        _y = maxTop;
-      }
-
-      if( _y < minTop + snapDistance ){
-        _y = minTop;
-      }
-
-      if( elem.style.right !== "auto" ){
-        elem.style.right = "auto";
-      }
-
-      if( elem.style.bottom !== "auto" ){ 
-        elem.style.bottom = "auto";
-      }
-
-      if( elem.style.left !== _x + "px" ){
-        elem.style.left = _x + "px";
-      }
-
-      if( elem.style.top !== _y + "px" ){
-        elem.style.top = _y + "px";
-      }
-
-    }
-
-    function pointerDownHandler(e){
-      
+  function pointerDownHandler(e){
+    if( esx.DRAGGABLE_ELEMS.indexOf(e.target) !== -1 ){
       e.preventDefault();
-      elem.setAttribute("data-dragging","");
       active = true;
-
-      offsetX = (e.clientX || (e.touches||[{clientX:0}])[0].clientX) - _this.getClientRect(elem).x;
-      offsetY = (e.clientY || (e.touches||[{clientX:0}])[0].clientY) - _this.getClientRect(elem).y;
-
-      _this.removeEventListener( elem, "pointerdown", pointerDownHandler );
-      _this.removeEventListener( elem, "mousedown", pointerDownHandler );
-      _this.removeEventListener( elem, "touchstart", pointerDownHandler );
-      _this.addEventListener( window, "pointerup", pointerUpHandler );
-      _this.addEventListener( window, "mouseup", pointerUpHandler );
-      _this.addEventListener( window, "touchend", pointerUpHandler );
-
-      iv = setInterval( updatePosition, updateIntervalInMs );
-
+      var rect = esx.getClientRect( e.target );
+      offsetX = ( e.clientX || ( e.touches||[{}] )[0].clientX || 0 ) - rect.x;
+      offsetY = ( e.clientY || ( e.touches||[{}] )[0].clientY || 0 ) - rect.y;
+      x = ( e.clientX || ( e.touches||[{}] )[0].clientX || 0 ) - offsetX;
+      y = ( e.clientY || ( e.touches||[{}] )[0].clientY || 0 ) - offsetY;
+      e.target.setAttribute("data-dragging","");
+      iv = esx.setInterval( function(){ updatePosition( e.target ) }, esx.DRAGGABLE_UPDATE_INTERVAL_MS ); 
     }
-    
-    function pointerUpHandler(e){
+    esx.removeEventListener( window, "pointerdown", pointerDownHandler );
+    esx.addEventListener( window, "pointermove", pointerMoveHandler );
+    esx.addEventListener( window, "pointerup", pointerUpHandler );
+  }
 
+
+  function pointerMoveHandler(e){
+    if( active ){
       e.preventDefault();
-      elem.removeAttribute("data-dragging");
+      x = ( e.clientX || ( e.touches||[{}] )[0].clientX || 0 ) - offsetX;
+      y = ( e.clientY || ( e.touches||[{}] )[0].clientY || 0 ) - offsetY;
+    }
+  }
+
+  function pointerUpHandler(e){
+    var elems = document.querySelectorAll("[data-dragging]") || [];
+    if( elems.length ){
+      var i, elem;
+      for( i=0; i<elems.length; i++ ){
+        elem = elems[i];
+        elem.removeAttribute("data-dragging");
+      }
+      e.preventDefault();
       active = false;
-
-      _this.addEventListener( elem, "pointerdown", pointerDownHandler );
-      _this.addEventListener( elem, "mousedown", pointerDownHandler );
-      _this.addEventListener( elem, "touchstart", pointerDownHandler );
-      _this.removeEventListener( window, "pointerup", pointerUpHandler );
-      _this.removeEventListener( window, "mouseup", pointerUpHandler );
-      _this.removeEventListener( window, "touchend", pointerUpHandler );
-
-      clearInterval( iv );
-
+      esx.clearInterval( iv );
     }
+    esx.removeEventListener( window, "pointermove", pointerMoveHandler );
+    esx.removeEventListener( window, "pointerup", pointerUpHandler );
+    esx.addEventListener( window, "pointerdown", pointerDownHandler );
+  }
 
-    _this.addEventListener( elem, "pointerdown", pointerDownHandler );
-    _this.addEventListener( elem, "mousedown", pointerDownHandler );
-    _this.addEventListener( elem, "touchstart", pointerDownHandler );
-
-    function pointerMoveHandler(e){
-      if( active ){
-        e.preventDefault();
-        x = (e.clientX || (e.touches||[{clientX:0}])[0].clientX) - offsetX;
-        y = (e.clientY || (e.touches||[{clientX:0}])[0].clientY) - offsetY;
-      }
-    }
-
-    _this.addEventListener( window, "pointermove", pointerMoveHandler );
-    _this.addEventListener( window, "mousemove", pointerMoveHandler );
-    _this.addEventListener( window, "touchmove", pointerMoveHandler );
+  esx.addEventListener(window,"pointerdown",pointerDownHandler);
 
 
-    /**
-     * monitor the parent client rect for size
-     * changes, and update if it has changed
-     **/
-    setInterval( function(){
-      if( typeof _this.getClientRect === "function" && !_this.compareObjs( _this.getClientRect(elem.parentElement), parentRect ) ){
-        updatePosition();
-      }
-    }, updateIntervalInMs );
 
-  };
+
+
+  
 
 }()

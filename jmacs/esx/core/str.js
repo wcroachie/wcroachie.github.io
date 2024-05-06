@@ -51,78 +51,26 @@ void function(){
   };
 
 
-  /* split a string by a single character */
-  // esx.splitAtCh = function( str, ch, omitEmptyStrings ){
-
-  //   var pieces=[], piece="";
-
-  //   for( var i=0; i<str.length; i++ ){
-  //     if( str[i] === ch ){
-  //       this.push( pieces, [piece] );
-  //       piece = "";
-  //     }else{
-  //       piece += str[i];
-  //     }
-  //   }
-
-  //   this.push( pieces, [piece] );
-    
-  //   if( omitEmptyStrings ){
-  //     var pieces2 = [];
-  //     for( var i=0; i<pieces.length; i++ ){
-  //       if( pieces[i] !== "" ){
-  //         this.push( pieces2, [pieces[i]] );
-  //       }
-  //     }
-  //     return pieces2;
-  //   }
-
-  //   return pieces;
-
-  // };
-
-  /* split a string at any of the provided characters */
-  // esx.splitAtChs = function( str, chArr, omitEmptyStrings ){
-
-  //   var pieces=[], piece="";
-
-  //   for( var i=0; i<str.length; i++ ){
-  //     if( this.indexOf( chArr, str[i] ) !== -1 ){
-  //       this.push( pieces, [piece] );
-  //       piece = "";
-  //     }else{
-  //       piece += str[i];
-  //     }
-  //   }
-
-  //   this.push( pieces, [piece] );
-    
-  //   if( omitEmptyStrings ){
-  //     var pieces2 = [];
-  //     for( var i=0; i<pieces.length; i++ ){
-  //       if( pieces[i] !== "" ){
-  //         this.push( pieces2, [pieces[i]] );
-  //       }
-  //     }
-  //     return pieces2;
-  //   }
-
-  //   return pieces;
-  // };
-
-
-  esx.padStart = function( str, maxLen, char ){
-
+  esx.padStart = function( str, maxLen, ch ){
     str += "";
-
+    ch += "";
+    ch = ch[0];
     while( str.length < maxLen ){
-      str = char + str;
+      str = ch + str;
     }
-
     return str;
-
   };
 
+
+  esx.padEnd = function( str, maxLen, ch ){
+    str += "";
+    ch += "";
+    ch = ch[0];
+    while( str.length < maxLen ){
+      str += ch;
+    }
+    return str;
+  };
 
   /* trims the space character from beginning and end, space character (0x20) ONLY */
   esx.trimSpace = function( str ){
@@ -167,7 +115,7 @@ void function(){
 
     str += "";
 
-    return isFinite( str * 1 );
+    return this.isFinite( str * 1 );
 
   };
 

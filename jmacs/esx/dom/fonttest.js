@@ -13,27 +13,6 @@ void function(){
 
   "use strict";
 
-  esx.addFont = function( initsrc ){
-
-    var link = document.createElement("link");
-    
-    link.rel = "stylesheet";
-    link.href = initsrc;
-    document.head.appendChild( link );
-
-    var iframes = document.querySelectorAll("iframe");
-    var i, iframe;
-    for( i=0; i<iframes.length; i++ ){
-      iframe = iframes[i];
-      iframe.contentWindow.postMessage({"add-link":link.href},"*");
-    }
-
-  };
-
-
-
-
-
   var acceptableRanges = {
     "A" : {
       widthRange : [89,93],
@@ -107,7 +86,11 @@ void function(){
    * m  w=96, h=61
    */
 
+
+
+
   var needTimesNewRoman = false;
+
   for( var testChar in acceptableRanges ){
     var cv = esx.drawLetter(testChar,"'Times New Roman'",128);
     var width = cv.width;
@@ -123,25 +106,18 @@ void function(){
     }
   }
 
-  if( needTimesNewRoman ){
-    
-    setTimeout(function(){
-      esx.addFont("style/font/timesnr/init.css");
-    },1000);
-
-    console.warn("TimesNewRomanError: Times New Roman had to be imported. Please install Times New Roman to prevent this from happening again.");
-    
-  }
-
-
-
   
+  esx.NEED_TIMES_NEW_ROMAN = needTimesNewRoman;
+  
+  if( esx.NEED_TIMES_NEW_ROMAN ){
+    console.warn("TimesNewRomanError: Times New Roman had to be imported. Please install Times New Roman to prevent this from happening again.");
 
-  // /* add necap3 */
-  // setTimeout(function(){
-  //   esx.addFont("style/font/necap3/init.css");
-  // },1000);
+    var href = "style/font/timesnr/init.css?" + esx.randomParam();
+    var link = document.createElement("link");
+    link.href = href;
+    link.rel = "stylesheet";
+    document.head.appendChild( link );
 
-
+  }
 
 }()

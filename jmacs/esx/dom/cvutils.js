@@ -60,11 +60,11 @@ void function(){
     x *= 1;
     y *= 1;
 
-    if( !isFinite(x) ){
+    if( !this.isFinite(x) ){
       throw "x must be such that x * 1 is finite";
     }
     
-    if( !isFinite(y) ){
+    if( !this.isFinite(y) ){
       throw "y must be such that y * 1 is finite";
     }
 
@@ -79,11 +79,11 @@ void function(){
     w *= 1;
     h *= 1;
 
-    if( !isFinite(w) ){
+    if( !this.isFinite(w) ){
       throw "w must be such that w * 1 is finite";
     }
 
-    if( !isFinite(h) ){
+    if( !this.isFinite(h) ){
       throw "h must be such that h * 1 is finite";
     }
 
@@ -137,7 +137,7 @@ void function(){
 
   esx.applyAlphaThreshold = function( ctx, value ){
     value *= 1;
-    if( !isFinite(value) ){
+    if( !this.isFinite(value) ){
       throw "value must be such that value * 1 is finite";
     }
     if( value < 0 || value > 255 ){
@@ -166,7 +166,7 @@ void function(){
   esx.isEmptyRow = function( ctx, y ){
     var canvas = ctx.canvas;
     y *= 1;
-    if( !isFinite( y ) ){
+    if( !this.isFinite( y ) ){
       throw "y must be such that y * 1 is finite"
     }
     if( y < 0 || y > canvas.height ){
@@ -185,7 +185,7 @@ void function(){
   esx.isEmptyCol = function( ctx, x ){
     var canvas = ctx.canvas;
     x *= 1;
-    if( !isFinite( x ) ){
+    if( !this.isFinite( x ) ){
       throw "x must be such that y * 1 is finite"
     }
     if( x < 0 || x > canvas.width ){
@@ -275,7 +275,7 @@ void function(){
       throw "string length must be 1"
     }
     fontSize *= 1;
-    if( !isFinite(fontSize) ){
+    if( !this.isFinite(fontSize) ){
       throw "fontSize must be such that fontSize * 1 is a finite value"
     }
     var ctx = esx.makeCanvas( fontSize * 2, fontSize * 2 );
