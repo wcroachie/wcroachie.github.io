@@ -162,8 +162,14 @@ void function(){
       iv = esx.setInterval( function(){ updatePosition( e.target ) }, esx.DRAGGABLE_UPDATE_INTERVAL_MS ); 
     }
     esx.removeEventListener( window, "pointerdown", pointerDownHandler );
+    esx.removeEventListener( window, "mousedown", pointerDownHandler );
+    esx.removeEventListener( window, "touchstart", pointerDownHandler );
     esx.addEventListener( window, "pointermove", pointerMoveHandler );
+    esx.addEventListener( window, "mousemove", pointerMoveHandler );
+    esx.addEventListener( window, "touchmove", pointerMoveHandler );
     esx.addEventListener( window, "pointerup", pointerUpHandler );
+    esx.addEventListener( window, "mouseup", pointerUpHandler );
+    esx.addEventListener( window, "touchend", pointerUpHandler );
   }
 
 
@@ -188,16 +194,18 @@ void function(){
       esx.clearInterval( iv );
     }
     esx.removeEventListener( window, "pointermove", pointerMoveHandler );
+    esx.removeEventListener( window, "mousemove", pointerMoveHandler );
+    esx.removeEventListener( window, "touchmove", pointerMoveHandler );
     esx.removeEventListener( window, "pointerup", pointerUpHandler );
+    esx.removeEventListener( window, "mouseup", pointerUpHandler );
+    esx.removeEventListener( window, "touchend", pointerUpHandler );
     esx.addEventListener( window, "pointerdown", pointerDownHandler );
+    esx.addEventListener( window, "mousedown", pointerDownHandler );
+    esx.addEventListener( window, "touchstart", pointerDownHandler );
   }
 
   esx.addEventListener(window,"pointerdown",pointerDownHandler);
-
-
-
-
-
-  
+  esx.addEventListener( window, "mousedown", pointerDownHandler );
+  esx.addEventListener( window, "touchstart", pointerDownHandler );
 
 }()
