@@ -1,7 +1,20 @@
-(function closure(){
+void function(){
 
 
-
+  if( location.hash ){
+    location.hash += "_";
+  }
+  setTimeout(function(){
+    esx.addEventListener( window, "hashchange", function(){
+      var a = document.createElement("a");
+      a.href = location.hash;
+      a.click();
+      console.log("hash changed");
+    });
+    if( location.hash ){
+      location.hash = location.hash.slice(0,-1);
+    }
+  });
 
 
   // https://pastebin.com/cE0G4TB6
@@ -66,4 +79,4 @@
   // console.warn( eval("eval('esx.normalizeStackTrace(esx.generateStackTrace())')"));
   // console.warn( esx.parseStackLine("test:testsdfkjhsf/sfdsfd/sfd.js:34:  \n\r:") )
 
-})()
+}()

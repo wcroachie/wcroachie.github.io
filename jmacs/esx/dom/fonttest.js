@@ -92,7 +92,7 @@ void function(){
   var needTimesNewRoman = false;
 
   for( var testChar in acceptableRanges ){
-    var cv = esx.drawLetter(testChar,"'Times New Roman'",128);
+    var cv = esx.drawLetter(testChar,"'Times New Roman'",128,{willReadFrequently:true});
     var width = cv.width;
     var height = cv.height;
     if(

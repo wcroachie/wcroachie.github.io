@@ -24,12 +24,14 @@ void function(){
 
     var _this = this;
 
-    if( "multiple" in options ){
-      uploader.multiple = options.multiple;
-    }
-
-    if( "accept" in options ){
-      uploader.accept = options.accept;
+    if( typeof options !== "undefined" ){
+      if( "multiple" in options ){
+        uploader.multiple = options.multiple;
+      }
+      
+      if( "accept" in options ){
+        uploader.accept = options.accept;
+      }
     }
 
     var resolve, reject;

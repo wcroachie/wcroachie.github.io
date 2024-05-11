@@ -27,11 +27,11 @@ text-align:left;
 }
 
 html{
-  /* border:5px solid green; */
+  border:5px solid gray;
+  overflow:hidden;
 }
 body{
-  /* border:5px solid blue; */
-  /* background-color:lightgray; */
+  overflow:hidden;
 }
 
 :root{

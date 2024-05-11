@@ -40,10 +40,8 @@ void function(){
 
   function updatePosition( elem ){
     
-    // if( typeof esx.getClientRect === "function" ){
-      elemRect = esx.getClientRect( elem );
-      parentRect = esx.getClientRect( elem.parentElement );
-    // }
+    elemRect = esx.getClientRect( elem );
+    parentRect = esx.getClientRect( elem.parentElement );
     
     var minLeft = 0 - elemRect.width + 20;
     var maxLeft = parentRect.width - 20;
@@ -51,8 +49,14 @@ void function(){
     var minTop = 0 - elemRect.height + 20;
     var maxTop = parentRect.height - 20;
 
-    var _x = Math.max( minLeft, x );
-    var _y = Math.max( minTop, y );
+    var _x = x;
+    var _y = y;
+
+    _x -= parentRect.x;
+    _y -= parentRect.y;
+    
+    _x = Math.max( minLeft, _x );
+    _y = Math.max( minTop, _y );
     _x = Math.min( maxLeft, _x );
     _y = Math.min( maxTop, _y );
 
@@ -89,6 +93,8 @@ void function(){
     if( _y < minTop + snapDistance ){
       _y = minTop;
     }
+
+    
 
     if( elem.style.right !== "auto" ){
       elem.style.right = "auto";
@@ -180,8 +186,24 @@ void function(){
     esx.addEventListener( window, "touchstart", pointerDownHandler );
   }
 
-  esx.addEventListener(window,"pointerdown",pointerDownHandler);
+  esx.addEventListener( window,"pointerdown",pointerDownHandler );
   esx.addEventListener( window, "mousedown", pointerDownHandler );
   esx.addEventListener( window, "touchstart", pointerDownHandler );
+
+
+  /* update pos when screen changes in case the draggable elems become outside their allowed areas */
+  if( typeof screen !== "undefined" && typeof screen.orientation !== "undefined" ){
+    var orientation = screen.orientation;
+    esx.addEventListener( orientation, "change", function(){
+      var i, elem;
+      for( i=0; i<esx.DRAGGABLE_ELEMS.length; i++ ){
+        elem = esx.DRAGGABLE_ELEMS[i];
+        /* there should be a bit of a delay to allow the orientation anim. to take place first */
+        setTimeout(function(){
+          updatePosition( elem );
+        },200);
+      }
+    });
+  }
 
 }()

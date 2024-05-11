@@ -6,6 +6,7 @@ void function(){
 
   "use strict";
   
+  // var date = esx.getUniqueDate();
   // /* get a unique date */
   // var now = Date.now();
   // for( ;; ){

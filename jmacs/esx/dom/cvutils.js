@@ -269,7 +269,7 @@ void function(){
   };
 
 
-  esx.drawLetter = function( ch, fontFamily, fontSize ){
+  esx.drawLetter = function( ch, fontFamily, fontSize, ctxParams ){
     ch += "";
     if( ch.length !== 1 ){
       throw "string length must be 1"
@@ -278,7 +278,7 @@ void function(){
     if( !this.isFinite(fontSize) ){
       throw "fontSize must be such that fontSize * 1 is a finite value"
     }
-    var ctx = esx.makeCanvas( fontSize * 2, fontSize * 2 );
+    var ctx = esx.makeCanvas( fontSize * 2, fontSize * 2, "2d", ctxParams );
     ctx.font = fontSize + "px " + fontFamily ;
     ctx.fillStyle = "black";
     ctx.fillText( ch, fontSize, fontSize );

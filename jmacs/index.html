@@ -2,8 +2,6 @@
 <html>
   <head>
 
-    <script src="nocache.js"></script>
-
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0">
@@ -11,6 +9,281 @@
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
+
+    <!-- nocache start -->
+    <script>
+      !function(){
+        "use strict";
+
+        /**
+         * 
+         * FOR DEBUGGING PURPOSES ONLY!!
+         * 
+         * this script, when included inline, attempts to
+         * re-parse all html after its placement in the DOM
+         * so that any scripts with a non-data-or-blob-url
+         * 'src' attribute or link tags with an href that is 
+         * non-data-or-blob-url have a random parameter added
+         * so that they are less likely to be fetched from a
+         * caching mechanism the environment is using, assuming
+         * it behaves this way. this is mainly to make debugging
+         * easier so that the page always refreshes newly.
+         * 
+         * note that this should only be used if the site is
+         * in development, but otherwise may cause a delay and
+         * flashes of unstyled content, so remember to remove for 
+         * production code. especially since both document.write
+         * and <plaintext> are deprecated.
+         * 
+         **/
+
+        /* add a random param to the URL to make sure the HTML document itself is requested freshly (will cause page to reload) */
+        try{
+          var isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
+          var navEntries = performance.getEntriesByType("navigation");
+          if(navEntries){
+            if(navEntries[0]){
+              var p = navEntries[0].type;
+              if( p==="reload" || p==="back_forward" || p==="prerender" ){
+                isReloaded = true;
+              }
+            }
+          }
+          if( !location.search || isReloaded ){ 
+            var a = Math.floor( Math.random() * 1e10 ).toString( 36 );
+            var b = Math.floor( Math.random() * 1e10 ).toString( 36 );
+            location.search = a + "=" + b;
+          }
+        }catch(e){
+          console.warn(e);
+        }
+
+        function randomId(){
+          return Math.floor( Math.random() * 1e10 ).toString( 36 );
+        }
+
+        function addRandomParam( url ){
+          url += "";
+          if( url.indexOf("?") === -1 ){
+            url += "?"
+          }else{
+            url += "&"
+          }
+          var a = randomId();
+          var b = randomId();
+          url += a + "=" + b;
+          return url;
+        }
+
+        function fixElemAttr( elem, attrName ){
+          var val = elem.getAttribute( attrName );
+          if( 
+            typeof val === "string" &&
+            val.length &&
+            val.indexOf("data:") !== 0 &&
+            val.indexOf("blob:") !== 0
+          ){
+            elem.setAttribute( attrName, addRandomParam(val) );
+          }
+        }
+
+        function updateElem( elem ){
+          if( elem.hasAttribute("src") ){
+            fixElemAttr( elem, "src" );
+          }
+          if( elem.tagName === "LINK" && elem.hasAttribute("href") ){
+            fixElemAttr( elem, "href" );
+          }
+          if( elem.hasAttribute("data") ){
+            fixElemAttr( elem, "data" );
+          }
+        }
+
+        /* IMPORTANT - remove this script so that it doesnt cause an infinite loop */
+        try{
+          document.currentScript.parentElement.removeChild( document.currentScript );
+        }catch(e){
+          console.warn(e);
+          try{
+            document.scripts[ document.scripts.length - 1 ].parentElement.removeChild( document.scripts[ document.scripts.length - 1 ] );
+          }catch(e){
+            console.warn(e);
+            try{
+              document.querySelector("script[src*='nocache.js']").remove();
+            }catch(e){
+              console.warn(e);
+            }
+          }
+        }
+
+        /* interrupt the parser here */
+        document.write("<plaintext hidden style='display:none;'>");
+
+        /* then wait a few event cycles for the plaintext element to have text content, edit the HTML, and reparse */
+        !function wait(){
+
+          var plaintext = document.querySelector("plaintext");
+
+          if( !plaintext ){
+            setTimeout( wait );
+            return;
+          }
+
+          if( !plaintext.textContent.length ){
+            setTimeout( wait );
+            return;
+          }
+
+          var plaintextContent = plaintext.textContent;
+
+          plaintext.parentElement.removeChild( plaintext );
+          
+          var vHtml = document.createElement("html");
+
+          /* this means this script was running from inside of a body, so add a empty head tag to the vHtml */
+          if( document.body.innerHTML.length ){
+            vHtml.innerHTML += "<head></head>";
+          }
+
+          vHtml.innerHTML += plaintextContent;
+
+          var vHead = vHtml.querySelector("head");
+          var vBody = vHtml.querySelector("body");
+
+          /* put stuff that didnt automatically get put in head or body in either head or body*/
+          !function(){
+
+            var nodesBeforeVHead = [];
+            var nodesAfterVHeadBeforeVBody = [];
+            var nodesAfterVBody = [];
+            
+            var i, node;
+            var vHeadSeen=false, vBodySeen=false;
+            for( i=0; i<vHtml.childNodes.length; i++ ){
+
+              node = vHtml.childNodes[i];
+
+              if( node === vHead ){
+                vHeadSeen = true;
+                continue;
+              }
+
+              if( node === vBody ){
+                vBodySeen = true;
+                continue;
+              }
+
+              if( !vHeadSeen ){
+                nodesBeforeVHead[ nodesBeforeVHead.length ] = node;
+              }else if( !vBodySeen ){
+                nodesAfterVHeadBeforeVBody[ nodesAfterVHeadBeforeVBody.length ] = node;
+              }else{
+                nodesAfterVBody[ nodesAfterVBody.length ] = node;
+              }
+
+            }
+
+            /* add anything before head to the head */
+            for( i=0; i<nodesBeforeVHead.length; i++ ){
+              node = nodesBeforeVHead[i];
+              node.parentElement.removeChild( node );
+              vHead.insertBefore( node, vHead.childNodes[0] );
+            }
+
+            /* add anything in between head and body to body */
+            for( i=0; i<nodesAfterVHeadBeforeVBody.length; i++ ){
+              node = nodesAfterVHeadBeforeVBody[i];
+              node.parentElement.removeChild( node );
+              vBody.insertBefore( node, vBody.childNodes[0] );
+            }
+
+            /* add anything after body to body */
+            for( i=0; i<nodesAfterVBody.length; i++ ){
+              node = nodesAfterVBody[i];
+              node.parentElement.removeChild( node );
+              vBody.appendChild( node );
+            }
+
+          }();
+
+          var descendants = vHtml.querySelectorAll("*");
+
+          var i;
+
+          for( i=0; i<descendants.length; i++ ){
+            updateElem( descendants[i] );
+          }
+
+          if( !document.head ){
+            document.documentElement.appendChild( document.createElement("head") );
+          }
+
+          if( !document.body ){
+            document.documentElement.appendChild( document.createElement("body") );
+          }
+
+          var attrName, attrValue;
+
+          if( vHead ){
+
+            for( i=0; i<vHead.attributes.length; i++ ){
+              attrName = vHead.attributes[i].name;
+              attrValue = vHead.getAttribute( attrName );
+              document.head.setAttribute( attrName, attrValue );
+            }
+
+            /**
+             * need to temporarily store references in
+             * array due to the children changing state
+             * when code in loop executes
+             * 
+             * use childNodes instead of children to keep comments
+             **/
+            var vHeadChildren = [];
+            for( i=0; i<vHead.childNodes.length; i++ ){
+              vHeadChildren[ vHeadChildren.length ] = vHead.childNodes[i];
+            }
+            for( i=0; i<vHeadChildren.length; i++ ){
+              document.head.appendChild( vHeadChildren[i] );
+            }
+
+          }
+
+          if( vBody ){
+            
+            for( i=0; i<vBody.attributes.length; i++ ){
+              attrName = vBody.attributes[i].name;
+              attrValue = vBody.getAttribute( attrName );
+              document.body.setAttribute( attrName, attrValue );
+            }
+
+            /**
+             * need to temporarily store references in
+             * array due to the children changing state
+             * when code in loop executes
+             * 
+             * use childNodes instead of children to keep comments
+             **/
+            var vBodyChildren = [];
+            for( i=0; i<vBody.childNodes.length; i++ ){
+              vBodyChildren[ vBodyChildren.length ] = vBody.childNodes[ i ];
+            }
+            for( i=0; i<vBodyChildren.length; i++ ){
+              document.body.appendChild( vBodyChildren[i] );
+            }
+            
+          }
+
+          var html = document.documentElement.outerHTML;
+
+          document.write("<!DOCTYPE html>" + html );
+        
+        }();
+
+      }()
+    </script>
+    
+    <!-- nocache end -->
     
     <style>
 
@@ -147,6 +420,8 @@
       <a class="update" href="javascript:;">update</a>
       <span> / </span>
       <a href="#options">options</a>
+      <span> / </span>
+      <a href="javascript:location.reload(true);">reload</a>
       
     </nav>
 
@@ -202,6 +477,7 @@
     <script src="esx/misc.js"></script>
     <script src="esx/runjs.js"></script>
     <script src="esx/url.js"></script>
+    <script src="esx/zip.js"></script>
     
     <script src="esx/dom/console.js"></script>
     <script src="esx/dom/cvutils.js"></script>
@@ -214,7 +490,7 @@
     <script src="main.js"></script>
     
     <script>
-      console.log("dom parsed");/* kdsjhskjfdh */
+      console.log("dom parsed");
     </script>
     
   </body>
