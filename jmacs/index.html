@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <script src="nocache.js"></script>
+
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0">
+    <meta name="robots" content="none">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    
+    <style>
+
+      :root{
+        font-family:'Times New Roman';
+      }
+
+      *{
+
+        image-rendering: pixelated;
+
+        /* global overrides to prevent weird behavior on mobile */
+        /* ios stuff */
+        text-size-adjust:none;
+        -webkit-text-size-adjust:none;
+        -moz-text-size-adjust:none;
+
+        -webkit-tap-highlight-color:transparent;
+
+        /* prevent accidental selection */
+        /* user-select:none; */
+        /* -webkit-user-select:none; */
+        /* -moz-user-select:none; */
+
+        -webkit-user-modify:none;
+        /* -moz-user-modify:none; */
+
+        -webkit-user-callout: none;
+        -webkit-user-drag: none;
+        -webkit-highlight: none;
+        -webkit-touch-callout:none;
+
+        scroll-behavior:smooth;
+
+        /* turn this off to turn off bouncing scroll */
+        /* overscroll-behavior: none; */
+
+      }
+
+      html, body{
+        position:absolute;
+        display:block;
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+      }
+
+      html{
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        overflow:hidden;
+      }
+
+      body{
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        overflow:auto;
+      }
+      
+      img{
+        /* prevent accidental selection */
+        user-select:none;
+        -webkit-user-select:none;
+        -moz-user-select:none;
+        /* but still keep touch-callout on mobile */
+        -webkit-touch-callout:default;
+      }
+
+    </style>
+
+
+    <script>
+      /* if window is window.top, add env variables to body */
+      !function(){
+        if( window === window.top ){
+          var style = document.head.appendChild( document.createElement("style") );
+          style.textContent =
+            "body{"
+            +   "left: env( safe-area-inset-left, 0 );"
+            +   "top: env( safe-area-inset-top, 0 );"
+            +   "width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) );"
+            +   "height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) );"
+            + "}"
+          ;
+        }
+      }();
+    </script>
+
+    
+    <!-- extra styles for ie (must come after nocache.js!) -->
+    <script>
+      !function(){
+        "use strict";
+        try{
+          /* RESIZE FIX FOR IE */
+          /* make site appear larger on ie */
+          if( document.documentMode ){
+            var nativeDPI = screen.systemXDPI;
+            var visualDPI = screen.logicalXDPI;
+            var ratio = 100 * (visualDPI/nativeDPI);
+            document.querySelector("style").textContent += "@-ms-viewport { width:" + ratio + "% }";
+          }
+        }catch(e){
+          console.warn(e);
+        }
+      }();
+    </script>
+
+    <link rel="stylesheet" href="style/style.css">
+
+  </head>
+
+  <!-- adding these inline event handlers fixes a bug in safari iOS -->
+  <body ontouchstart onclick ondblclick>
+
+    <p>
+      this is a test paragraph <b>asdfg<i>ashgdfd</i></b><i>asdfg</i>
+    </p>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h1>A</h1>
+
+    <script src="esx/core/arr.js"></script>
+    <script src="esx/core/bitw.js"></script>
+    <script src="esx/core/btoa.js"></script>
+    <script src="esx/core/err.js"></script>
+    <script src="esx/core/esc.js"></script>
+    <script src="esx/core/obj.js"></script>
+    <script src="esx/core/typechk.js"></script>
+    <script src="esx/core/str.js"></script>
+    <script src="esx/core/utf8.js"></script>
+
+    <script src="esx/trackers/bloburl.js"></script>
+    <script src="esx/trackers/iv.js"></script>
+    <script src="esx/trackers/listener.js"></script>
+    <script src="esx/trackers/ti.js"></script>
+
+    <script src="esx/errpars.js"></script>
+    <script src="esx/misc.js"></script>
+    <script src="esx/runjs.js"></script>
+    <script src="esx/url.js"></script>
+    
+    <script src="esx/dom/console.js"></script>
+    <script src="esx/dom/cvutils.js"></script>
+    <script src="esx/dom/drag.js"></script>
+    <script src="esx/dom/fonttest.js"></script>
+    <script src="esx/dom/rect.js"></script>
+    <script src="esx/dom/upload.js"></script>
+    <script src="esx/dom/zindex.js"></script>
+    
+    <script src="main.js"></script>
+    
+    <script>
+      console.log("dom parsed");/* kdsjhskjfdh */
+    </script>
+    
+  </body>
+</html>
