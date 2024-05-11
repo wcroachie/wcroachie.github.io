@@ -130,14 +130,58 @@
   <!-- adding these inline event handlers fixes a bug in safari iOS -->
   <body ontouchstart onclick ondblclick>
 
-    <p>
-      this is a test paragraph <b>asdfg<i>ashgdfd</i></b><i>asdfg</i>
-    </p>
-    <br>
-    <br>
-    <br>
-    <br>
-    <h1>A</h1>
+    <br style="display:none" hidden id="browse">
+    <br style="display:none" hidden id="about">
+    <br style="display:none" hidden id="options">
+    <br style="display:none" hidden id="tools">
+
+    <nav>
+      <a href="#">home</a>
+      <span> / </span>
+      <a href="#browse">browse</a>
+      <span> / </span>
+      <a href="#about">about</a>
+      <span> / </span>
+      <a href="#tools">tools</a>
+      <span> &bull; </span>
+      <a class="update" href="javascript:;">update</a>
+      <span> / </span>
+      <a href="#options">options</a>
+      
+    </nav>
+
+    <main>
+      <section class="home">
+        <span>Welcome</span>
+        <span> &bull; </span>
+        <a href="#browse">browse</a>
+        <span> / </span>
+        <a href="#about">about</a>
+      </section>
+      <section class="browse">
+        <div class="dir-mount"></div>
+      </section>
+      <section class="about">
+        about
+        <a href="#faq">faq</a>
+        <a href="#changelog">changelog</a>
+      </section>
+      <section class="options">
+        options
+        <header>
+          this is here temporarily for color testing and should be removed
+        </header>
+        <form></form>
+      </section>
+      <section class="tools">
+        <a href="#im2pdf">im2pdf</a>
+        <a href="#pdf2im">pdf2im</a>
+        <a href="#twideo">twideo</a>
+        <a href="#twif">twif</a>
+        <a href="#yownloadr">yownloadr</a>
+      </section>
+      
+    </main>
 
     <script src="esx/core/arr.js"></script>
     <script src="esx/core/bitw.js"></script>

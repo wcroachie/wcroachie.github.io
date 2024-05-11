@@ -77,7 +77,7 @@
     if( elem.hasAttribute("src") ){
       fixElemAttr( elem, "src" );
     }
-    if( elem.hasAttribute("href") ){
+    if( elem.tagName === "link" && elem.hasAttribute("href") ){
       fixElemAttr( elem, "href" );
     }
     if( elem.hasAttribute("data") ){
