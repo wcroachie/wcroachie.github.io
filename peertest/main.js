@@ -22,11 +22,6 @@ function createHostSession( hostId, onOpen, onConnection, onClose, onDisconnecte
   console.log("initializing host session...");
   let peer = new Peer( hostId, {
     debug : 3,
-    host: "1.peerjs.com",
-    port: 443,
-    path: "/",
-    secure : true,
-    pingInterval : 2500,
   } );
   peer.on("open",onOpen);
   peer.on("connection", onConnection);
@@ -42,11 +37,6 @@ function createClientSession( onOpen, onConnection, onClose, onDisconnected, onE
   console.log("initializing client session...");
   let peer = new Peer( null, {
     debug : 3,
-    host: "1.peerjs.com",
-    port: 443,
-    path: "/",
-    secure : true,
-    pingInterval : 2500,
   } );
   peer.on("open",onOpen);
   peer.on("connection", onConnection);
