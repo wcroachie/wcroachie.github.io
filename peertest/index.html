@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0">
+    <meta name="robots" content="none">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+
+    <!-- nocache start -->
+    <script class="nocache">
+      void function(){
+        "use strict";
+
+        function getUniqueString(){
+          var then = +new Date();
+          var now;
+          for( ;; ){
+            now = +new Date();
+            if( now > then ){
+              break;
+            }
+          }
+          var id = +new Date();
+          return id;
+        }
+
+        function addUniqueParam( url ){
+          url += "";
+          if( url.indexOf("?") === -1 ){
+            url += "?"
+          }else{
+            url += "&"
+          }
+          url += "nocache=" + getUniqueString();
+          return url;
+        }
+
+        /**
+         * use date-based url params to make
+         * sure document always refreshes newly
+         * in effort to resist caching when
+         * debugging
+         **/
+        void function(){
+
+          var isReloaded, navEntries;
+          
+          if(
+            typeof performance !== "undefined" &&
+            typeof performance.navigation !== "undefined" &&
+            typeof performance.getEntriesByType === "function" &&
+            typeof location !== "undefined"
+          ){
+            isReloaded = performance.navigation.type == performance.navigation.TYPE_RELOAD;
+            navEntries = performance.getEntriesByType("navigation");
+            if( navEntries && navEntries[0] ){
+              var p = navEntries[0].type;
+              if(
+                p === "reload" ||
+                p === "back_forward" ||
+                p === "prerender"
+              ){
+                isReloaded = true;
+              }
+            }
+            if( !location.search || isReloaded ){
+              location.search = "?nocache=" + getUniqueString();
+            }
+          }
+
+        }();
+
+
+
+        /**
+         * obtain and remove this script
+         * to prevent infinite recursion
+         **/
+        void function(){
+          var thisScript = function(){
+            var scripts = document.getElementsByTagName("script");
+            var i, script;
+            for( i=0; i<scripts.length; i++ ){
+              script = scripts[i];
+              if( script.className === "nocache" ){
+                return script;
+              }
+            }
+          }();
+          thisScript.parentNode.removeChild( thisScript );
+        }();
+
+        function interruptParser( callback ){
+          
+          /* interrupt the parser here */
+          document.write("<plaintext>");
+          
+          /**
+           * then wait a few event cycles for the
+           * plaintext element to have text content,
+           * then obtain the textContent and remove
+           * the plaintext element
+           **/
+          void function wait(){
+            var plaintext = document.getElementsByTagName("plaintext")[0];
+            if( !plaintext ){
+              setTimeout( wait );
+              return;
+            }
+            if( !plaintext.textContent.length ){
+              setTimeout( wait );
+              return;
+            }
+            var plaintextContent = plaintext.textContent;
+            plaintext.parentNode.removeChild( plaintext );
+            callback( plaintextContent );
+          }();
+ 
+        }
+        
+        function fixElemAttr( elem, attrName ){
+          if( typeof elem.getAttribute === "function" ){
+            var val = elem.getAttribute( attrName );
+            if( 
+              typeof val === "string" &&
+              val.length &&
+              val.indexOf("data:") !== 0 &&
+              val.indexOf("blob:") !== 0
+            ){
+              elem.setAttribute( attrName, addUniqueParam(val) );
+            }
+          }
+        }
+
+        function fixElem( elem ){
+          if( typeof elem.getAttribute === "function" ){
+            if( elem.getAttribute("src") ){
+              fixElemAttr( elem, "src" );
+            }
+            if( elem.tagName === "LINK" && elem.getAttribute("href") ){
+              fixElemAttr( elem, "href" );
+            }
+            if( elem.getAttribute("data") ){
+              fixElemAttr( elem, "data" );
+            }
+          }
+        }
+
+        interruptParser(function(plaintextContent){
+
+          var vHtml = document.createElement("html");
+
+          /**
+           * this means this script was running from
+           * inside of a body, so add a empty head
+           * tag to the vHtml
+           **/
+          if( document.body.innerHTML.length ){
+            vHtml.innerHTML += "<head></head>";
+          }
+
+          vHtml.innerHTML += plaintextContent;
+
+          var vHead = vHtml.getElementsByTagName("head")[0];
+          var vBody = vHtml.getElementsByTagName("body")[0];
+
+          /* put stuff that didnt automatically get put in head or body in either head or body*/
+          void function(){
+
+            var nodesBeforeVHead = [];
+            var nodesAfterVHeadBeforeVBody = [];
+            var nodesAfterVBody = [];
+
+            var i, node;
+            var vHeadSeen=false, vBodySeen=false;
+            for( i=0; i<vHtml.childNodes.length; i++ ){
+
+              node = vHtml.childNodes[i];
+
+              if( node === vHead ){
+                vHeadSeen = true;
+                continue;
+              }
+
+              if( node === vBody ){
+                vBodySeen = true;
+                continue;
+              }
+
+              if( !vHeadSeen ){
+                nodesBeforeVHead[ nodesBeforeVHead.length ] = node;
+              }else if( !vBodySeen ){
+                nodesAfterVHeadBeforeVBody[ nodesAfterVHeadBeforeVBody.length ] = node;
+              }else{
+                nodesAfterVBody[ nodesAfterVBody.length ] = node;
+              }
+
+            }
+
+            /* add anything before head to the head */
+            for( i=0; i<nodesBeforeVHead.length; i++ ){
+              node = nodesBeforeVHead[i];
+              /* check if parent element - ie fix */
+              if( node.parentNode ){
+                node.parentNode.removeChild( node );
+              }
+              vHead.insertBefore( node, vHead.childNodes[0] );
+            }
+
+            /* add anything in between head and body to body */
+            for( i=0; i<nodesAfterVHeadBeforeVBody.length; i++ ){
+              node = nodesAfterVHeadBeforeVBody[i];
+              /* check if parent element - ie fix */
+              if( node.parentNode ){
+                node.parentNode.removeChild( node );
+              }
+              vBody.insertBefore( node, vBody.childNodes[0] );
+            }
+
+            /* add anything after body to body */
+            for( i=0; i<nodesAfterVBody.length; i++ ){
+              node = nodesAfterVBody[i];
+              /* check if parent element - ie fix */
+              if( node.parentNode ){
+                node.parentNode.removeChild( node );
+              }
+              vBody.appendChild( node );
+            }
+
+          }();
+
+
+          var descendants = [];
+
+          /* recursively collect all child nodes of vHtml */
+          void function collectChildNodes( node ){
+            var i, childNode;
+            for( i=0; i<node.childNodes.length; i++ ){
+              childNode = node.childNodes[i];
+              descendants[ descendants.length ] = childNode;
+              collectChildNodes( childNode );
+            }
+          }( vHtml );
+
+          /* fix all the descendants */
+          var i, descendant;
+          for( i=0; i<descendants.length; i++ ){
+            descendant = descendants[i];
+            fixElem( descendant );
+          }
+
+          /* add a head and body to the document if there arent already */
+          document.head || document.documentElement.appendChild( document.createElement("head") );
+          document.body || document.documentElement.appendChild( document.createElement("body") );
+
+          var attrName, attrValue;
+
+          if( vHead ){
+            /* add attrs from vHead to real head */
+            for( i=0; i<vHead.attributes.length; i++ ){
+              attrName = vHead.attributes[i].name;
+              attrValue = vHead.getAttribute( attrName );
+              document.head.setAttribute( attrName, attrValue );
+            }
+            /* add the vHead childNodes to real head */
+            /**
+             * need to temporarily store references in
+             * array due to the children changing state
+             * when code in loop executes
+             * 
+             * use childNodes instead of children to keep comments
+             **/
+            var vHeadChildren = [];
+            for( i=0; i<vHead.childNodes.length; i++ ){
+              vHeadChildren[ vHeadChildren.length ] = vHead.childNodes[i];
+            }
+            for( i=0; i<vHeadChildren.length; i++ ){
+              document.head.appendChild( vHeadChildren[i] );
+            }
+          }
+
+          if( vBody ){
+            /* add attrs from vBody to real body */
+            for( i=0; i<vBody.attributes.length; i++ ){
+              attrName = vBody.attributes[i].name;
+              attrValue = vBody.getAttribute( attrName );
+              document.body.setAttribute( attrName, attrValue );
+            }
+            /* add the vBody childNodes to real body */
+            /**
+             * need to temporarily store references in
+             * array due to the children changing state
+             * when code in loop executes
+             * 
+             * use childNodes instead of children to keep comments
+             **/
+            var vBodyChildren = [];
+            for( i=0; i<vBody.childNodes.length; i++ ){
+              vBodyChildren[ vBodyChildren.length ] = vBody.childNodes[ i ];
+            }
+            for( i=0; i<vBodyChildren.length; i++ ){
+              document.body.appendChild( vBodyChildren[i] );
+            }
+          }
+
+          var html = document.documentElement.outerHTML;
+
+          document.write("<!DOCTYPE html>" + html );
+
+          setTimeout(function(){
+
+            function reAddLink( link ){
+              var parent = link.parentNode;
+              var placeHolder = document.createComment("placeholder");
+              parent.insertBefore( placeHolder, link );
+              parent.removeChild( link );
+              setTimeout(function(){
+                parent.insertBefore( link, placeHolder );
+                parent.removeChild( placeHolder );
+              },200);
+            }
+
+            var linkedLinks = function(){
+              var links = document.getElementsByTagName("link");
+              var linkedLinks = [];
+              var i, link, href, rel;
+              for( i=0; i<links.length; i++ ){
+                link = links[i];
+                href = link.getAttribute("href");
+                rel = link.getAttribute("rel");
+                if(
+                  rel === "stylesheet" &&
+                  typeof href === "string" &&
+                  href.length &&
+                  href.indexOf("data:") !== 0 &&
+                  href.indexOf("blob:") !== 0
+                ){
+                  linkedLinks[ linkedLinks.length ] = link;
+                }
+              }
+              return linkedLinks;
+            }();
+
+            var i, link;
+            for( i=0; i<linkedLinks.length; i++ ){
+              link = linkedLinks[i];
+              reAddLink( link );
+            }
+
+            void function waitForAllStylesheetsToLoad(){
+              if( document.styleSheets ){
+                var linkedSheets = [];
+                var i, sheet;
+                for( i=0; i<document.styleSheets.length; i++ ){
+                  sheet = document.styleSheets[i];
+                  if( sheet.href ){
+                    linkedSheets[ linkedSheets.length ] = sheet;
+                  }
+                }
+                if( linkedSheets.length !== linkedLinks.length ){
+                  setTimeout( waitForAllStylesheetsToLoad );
+                }
+              }
+            }();
+
+          });
+        });
+
+      }()
+    </script>
+    <!-- nocache end -->
+
+
+    <style>
+
+      :root{
+        font-family:'Times New Roman';
+      }
+
+      *{
+
+        /* turn this on to make pixel art sharper when scaled up */
+        /* image-rendering: pixelated; */
+
+        /* global overrides to prevent weird behavior on mobile */
+        /* ios stuff */
+        text-size-adjust:none;
+        -webkit-text-size-adjust:none;
+        -moz-text-size-adjust:none;
+
+        -webkit-tap-highlight-color:transparent;
+
+        /* prevent accidental selection */
+        /* user-select:none; */
+        /* -webkit-user-select:none; */
+        /* -moz-user-select:none; */
+
+        -webkit-user-modify:none;
+        /* -moz-user-modify:none; */
+
+        -webkit-user-callout: none;
+        -webkit-user-drag: none;
+        -webkit-highlight: none;
+        -webkit-touch-callout:none;
+
+        scroll-behavior:smooth;
+
+        /* turn this off to turn off bouncing scroll */
+        /* overscroll-behavior: none; */
+
+      }
+
+      html, body{
+        position:absolute;
+        display:block;
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+      }
+
+      html{
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        overflow:hidden;
+      }
+
+      body{
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        overflow:auto;
+      }
+      
+      img{
+        /* prevent accidental selection */
+        user-select:none;
+        -webkit-user-select:none;
+        -moz-user-select:none;
+        /* but still keep touch-callout on mobile */
+        -webkit-touch-callout:default;
+      }
+
+    </style>
+
+    
+    
+    
+
+    <!-- must come after nocache.js and any inline style -->
+    <script>
+      void function(){
+        "use strict";
+
+        /**
+         * note - ONLY if window === window.top.
+         * if window is window.top, add env variables to
+         * body for mobile devices and devices with weirdly
+         * shaped screens
+         **/
+        var style = document.head.appendChild( document.createElement("style") );
+
+        if( window === window.top ){
+          style.textContent = ""
+          + "body{"
+          +   "left: env( safe-area-inset-left, 0 );"
+          +   "top: env( safe-area-inset-top, 0 );"
+          +   "width: calc( 100% - env( safe-area-inset-left, 0 ) - env( safe-area-inset-right, 0) );"
+          +   "height: calc( 100% - env( safe-area-inset-top, 0 ) - env( safe-area-inset-bottom, 0) );"
+          + "}"
+          ;
+        }
+
+        /* IE FIXES */
+        if( document.documentMode ){
+          
+          /**
+           * 
+           * fix viewport/dpi issue, makes site scale normally in IE
+           **/
+          var nativeDPI = screen.systemXDPI;
+          var visualDPI = screen.logicalXDPI;
+          var ratio = 100 * (visualDPI/nativeDPI);
+
+          style.textContent += ""
+          + "@-ms-viewport { width:" + ratio + "% }"
+          ;
+
+        }
+
+      }()
+    </script>
+
+    <!-- any additional stylesheets should go below -->
+
+  </head>
+
+  <!-- adding these inline event handlers fixes a bug in safari iOS -->
+  <body ontouchstart onclick ondblclick>
+    
+    <input type="text" placeholder="enter session id">
+    
+    <button class="init-host">start a new host session</button>
+    <button class="init-client">connect to an existing host session</button>
+    
+    <button class="disconnect">disconnect peer</button>
+    <button class="reconnect">reconnect peer</button>
+    <button class="destroy">destroy peer</button>
+    
+    <script src="debugger.js"></script>
+    <script src="https://unpkg.com/peerjs/dist/peerjs.min.js"></script>
+    <script src="main.js"></script>
+    <script>
+      console.log("dom parsed");
+    </script>
+  </body>
+</html>
