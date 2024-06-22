@@ -394,6 +394,7 @@
         let isBrave = await navigator.brave.isBrave();
         if( isBrave && CSS.supports("-webkit-touch-callout:none") ){
           isBraveIOS = true;
+          alert("Notice - it seems like you're using brave iOS. There's a very specific bug with brave iOS and service workers that I've been trying to fix for a while, but long story short it makes it impossible to have downloads work correctly with service workers in brave on iPhones. For the time being, until I find a workaround or until it gets fixed, you might wanna try another browser for this web app. Very sorry! (if you want more information on this bug check the source code for the service worker iframe, it's in the comments)");
         }
       }catch(_){}
 
@@ -491,6 +492,41 @@
              * transient activation must be obtained
              * from user input from top browsing
              * context.
+             * 
+             * update - opening the downloading
+             * stream in a new tab causes focus to
+             * change and seems to cause the stream
+             * to hang/fail. I am guessing this is
+             * a side affect of restricting service
+             * workers' ability to change the "body"
+             * of a request. because as far as i can
+             * tell, brave iOS seems to be correctly
+             * intercepting the request headers but
+             * the request body itself doesn't get
+             * changed to the arbitrary value for
+             * fetchEvent.respondWith method (see
+             * the service worker code for what i'm
+             * talking about), whether it be a blob,
+             * text, readable stream, etc.
+             * 
+             * as of writing there is an experimental
+             * API for allowing the streaming of
+             * large files directly to disk called
+             * FileSystemFileHandle and it only
+             * seems to be partially supported by iOS,
+             * so in the future if that becomes widely
+             * supported, I'll use that instead, and
+             * tbh it could even make this entire
+             * service worker hack obselete.
+             * 
+             * TL;DR brave iOS does not implement
+             * service workers fully, whether by
+             * accident or by design. thus downloads
+             * can only be stored in memory before
+             * being triggered "the old way" (via
+             * an anchor tag with a "download"
+             * attribute) or directly from a server.
+             * 
              **/
             const a = document.createElement("a");
             a.href = "?open=" + e.data.id;
