@@ -5,15 +5,23 @@
   </head>
   <body>
     <h1>javascript has not run.</h1>
+    <pre style="color:red;"></pre>
     <script>
       void function(){
+        
         document.querySelector("h1").textContent = "javascript is running...";
-        /*
+        
         let params = Object.fromEntries( new URLSearchParams( location.search ).entries() );
         let jsToRun = params.javascript;
-        ( 0, eval )( jsToRun );
-        */
-      }();
+
+        try{
+          ( 0, eval )( jsToRun );
+        }catch( e ){
+          e = e || new Error( "unknown error" );
+          document.querySelector("pre").textContent = e + "\nstack:\n" + e.stack;
+        }
+        
+      }()
     </script>
   </body>
 </html>
