@@ -6,6 +6,7 @@
   <body>
     <script>
       void function(){
+        alert( 0 );
         let params = Object.fromEntries( new URLSearchParams( location.search ).entries() );
         let jsToRun = params.javascript;
         ( 0, eval )( jsToRun );
