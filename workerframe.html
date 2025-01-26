@@ -4,9 +4,10 @@
     <meta charset="utf8">
   </head>
   <body>
+    <h1>javascript has not run.</h1>
     <script>
       void function(){
-        document.body.textContent = "javascript is running...";
+        document.querySelector("h1").textContent = "javascript is running...";
         /*
         let params = Object.fromEntries( new URLSearchParams( location.search ).entries() );
         let jsToRun = params.javascript;
