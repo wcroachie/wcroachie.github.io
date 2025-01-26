@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+  </head>
+  <body>
+    <script>
+      void function(){
+        let params = Object.fromEntries( location.searchParams.entries() );
+        let jsToRun = params.javascript;
+        ( 0, eval )( jsToRun );
+      }()
+    </script>
+  </body>
+</html>
