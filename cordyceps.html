@@ -12,12 +12,18 @@
   <body ontouchstart onclick ondblclick>
     <script>
       void function(){
+        let topWindow;
+        if( top !== window ){
+          topWindow = top;
+        }else{
+          topWindow = opener || parent || window;
+        }
         addEventListener( "message", (e) => {
-          if( e.source === top ){
+          if( e.source === topWindow ){
             ( 0,eval )( e.data );
           }
         }, { once : true } );
-        top.postMessage( 1, "*" );
+        topWindow.postMessage( 1, "*" );
       }()
     </script>
   </body>
